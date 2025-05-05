@@ -21,13 +21,17 @@
 ▀                                                             ███    ███ 
 ------------------------------------------------------------------------------------------
 
-This is a logging subsystem for the crochet engine. It logs all the initialization events, gives warnings and terminates the engine incase of initialization failure or any fatal error.
+[+] This is a logging subsystem for the crochet engine. It logs all the initialization events, gives warnings and terminates the engine incase of initialization failure or any fatal error.
+ 
+[+] This logger utilizes a singleton architecture.
+
  */
 
 #pragma once
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 namespace Crochet::Core {
   
