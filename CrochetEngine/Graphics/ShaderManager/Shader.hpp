@@ -39,10 +39,12 @@
 #include <sstream>
 #include <fstream>
 
+#include "../../Core/Logger/Logger.hpp"
+
 namespace Crochet::Graphics {
   class Shader{
     public:
-      Shader(const char *vertexPath,const char *fragmentPath);
+      Shader(const std::string &vertexPath,std::string &fragmentPath);
       ~Shader();
 
       void use();
@@ -62,9 +64,9 @@ namespace Crochet::Graphics {
     private:
       unsigned int mProgramID;
 
-      std::string loadFile(const std::string& path);
-      unsigned int compileShader(unsigned int type,const std::string &source);
-      void linkProgram(unsigned int vertexShader,unsigned int fragmentShader);  
+      const char* loadFile(const std::string& path);
+      unsigned int compileShader(unsigned int type,const char *source);
+      void linkProgram(unsigned int &vertexShader,unsigned int &fragmentShader);  
 
   };
 }

@@ -1,7 +1,7 @@
 #include "Timer.hpp"
 
 namespace Crochet::Core {
-  Logger c_logger = Logger::getInstance();
+  Logger& c_logger = Logger::getInstance();
 
   Timer& Timer::getInstance(){
     static Timer instance;
