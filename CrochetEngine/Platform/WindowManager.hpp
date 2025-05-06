@@ -44,8 +44,8 @@ namespace Crochet::Platform {
 
       GLFWwindow *getWindow();
       
-      int getWindowWidth();
-      int getWindowHeight();
+      int getWindowWidth() const;
+      int getWindowHeight() const;
       
       void setWindowRes(int width,int height);
 
@@ -54,11 +54,8 @@ namespace Crochet::Platform {
       void pollEvents();
       void swapBuffers();
 
-      WindowManager();
-      ~WindowManager();
-
     private:
-      WindowManager() = WindowManager();
+      WindowManager() = default;
       WindowManager(const WindowManager&) = delete;
       WindowManager& operator=(const WindowManager&) = delete;
 

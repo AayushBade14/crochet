@@ -2,7 +2,7 @@
 
 namespace Crochet::Platform {
   
-  Crochet::Core::Logger mLogger = Crochet::Core::Logger::getInstance();
+  Crochet::Core::Logger& mLogger = Crochet::Core::Logger::getInstance();
 
   WindowManager& WindowManager::getInstance(){
     static WindowManager instance = WindowManager();
@@ -62,28 +62,22 @@ namespace Crochet::Platform {
     }
   }
 
-  WindowManager::WindowManager(){
-    init();
-  }
-
-  WindowManager::~WindowManager(){
-    cleanup();
-  }
-
-  int WindowManager::getWindowWidth(){
+  int WindowManager::getWindowWidth() const{
     glfwGetWindowSize(mWindow,&mWindowWidth,&mWindowHeight);
     return mWindowWidth;
   }
 
-  int WindowManager::getWindowHeight(){
+  int WindowManager::getWindowHeight() const{
     glfwGetWindowSize(mWindow,&mWindowWidth,&mWindowHeight);
     return mWindowHeight;
   }
 
   void WindowManager::setWindowRes(int width,int height){
-    mWindowWidth = width;
-    mWindowHeight = height;
-    glfwSetWindowSize(mWindow,mWindowWidth,mWindowHeight);
+    if(width != mWindowWidth || height != mWindowHeight){
+      mWindowWidth = width;
+      mWindowHeight = height;
+      glfwSetWindowSize(mWindow,mWindowWidth,mWindowHeight);
+    }
   }
 
   GLFWwindow* WindowManager::getWindow(){
