@@ -119,6 +119,17 @@ namespace Crochet::Graphics {
   }
 
   void Shader::setVec3(const std::string& name,float x,float y,float z) const{
-    
+    unsigned int loc = glGetUniformLocation(mProgramID,name.c_str());
+    glUniform3f(loc,x,y,z);
+  }
+
+  void Shader::setVec3(const std::string& name,glm::vec3 &vector) const{
+    unsigned int loc = glGetUniformLocation(mProgramID,name.c_str());
+    glUniform3fv(loc,1,&vector[0]);
+  }
+
+  void Shader::setMat4(const std::string& name,glm::mat4 &matrix) const{
+    unsigned int loc = glGetUniformLocation(mProgramID,name.c_str());
+    glUniformMatrix4fv(loc,GL_FALSE,glm::value_ptr(matrix));
   }
 }
