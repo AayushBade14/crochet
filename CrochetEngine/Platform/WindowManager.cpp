@@ -89,4 +89,16 @@ namespace Crochet::Platform {
   GLFWwindow* WindowManager::getWindow(){
     return mWindow;
   }
+  
+  bool WindowManager::shouldClose(){
+    return glfwWindowShouldClose(mWindow);
+  }
+  
+  void WindowManager::pollEvents(){
+    glfwPollEvents();
+  }
+
+  void WindowManager::swapBuffers(){
+    glfwSwapBuffers(mWindow);
+  }
 }

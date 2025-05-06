@@ -49,6 +49,11 @@ namespace Crochet::Platform {
       
       void setWindowRes(int width,int height);
 
+      bool shouldClose();
+      
+      void pollEvents();
+      void swapBuffers();
+
       WindowManager();
       ~WindowManager();
 
