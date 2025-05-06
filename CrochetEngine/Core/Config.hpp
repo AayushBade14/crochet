@@ -34,5 +34,8 @@ namespace Crochet::Core {
     inline static constexpr int SCREEN_WIDTH = 1920;
     inline static constexpr int SCREEN_HEIGHT = 1080;
     inline static constexpr int SCREEN_TITLE = "Crochet-Engine";
+    
+    inline static constexpr int GLFW_MAJOR = 4;
+    inline static constexpr int GLFW_MINOR = 6;
   };
 }
