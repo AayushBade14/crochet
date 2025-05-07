@@ -55,5 +55,7 @@ namespace Crochet::Graphics {
     private:
       ShaderManager() = default;
       std::unordered_map<string,Shader> mShaders;
+      ShaderManager(const ShaderManager&) = delete;
+      ShaderManager& operator=(const ShaderManager&) = delete;
   };
 }
