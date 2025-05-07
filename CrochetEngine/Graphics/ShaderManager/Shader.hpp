@@ -64,7 +64,7 @@ namespace Crochet::Graphics {
     private:
       unsigned int mProgramID;
 
-      const char* loadFile(const std::string& path);
+      std::string loadFile(const std::string& path);
       unsigned int compileShader(unsigned int type,const char *source);
       void linkProgram(unsigned int &vertexShader,unsigned int &fragmentShader);  
       

@@ -3,7 +3,7 @@
 namespace Crochet::Graphics {
   Crochet::Core::Logger& mLogger = Crochet::Core::Logger::getInstance();
 
-  const char* Shader::loadFile(const std::string &path){
+  std::string Shader::loadFile(const std::string &path){
     std::string code;
     std::ifstream file;
 
@@ -76,11 +76,11 @@ namespace Crochet::Graphics {
   } 
 
   Shader::Shader(const std::string &vertexPath,const std::string &fragmentPath){
-    const char* vertexSrc = loadFile(vertexPath);
-    const char* fragmentSrc = loadFile(fragmentPath);
+    std::string vertexSrc = loadFile(vertexPath);
+    std::string fragmentSrc = loadFile(fragmentPath);
 
-    unsigned int vertex = compileShader(0,vertexSrc);
-    unsigned int fragment = compileShader(1,fragmentSrc);
+    unsigned int vertex = compileShader(0,vertexSrc.c_str());
+    unsigned int fragment = compileShader(1,fragmentSrc.c_str());
 
     linkProgram(vertex,fragment);
   }
