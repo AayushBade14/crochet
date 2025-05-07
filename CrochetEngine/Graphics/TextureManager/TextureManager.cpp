@@ -13,7 +13,5 @@ namespace Crochet::Graphics {
   
   Texture& getTexture(const std::string& name){
     return mTextures[name];
-  }
-
-  
+  } 
 }
