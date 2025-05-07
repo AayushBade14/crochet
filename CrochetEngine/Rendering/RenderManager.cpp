@@ -3,6 +3,7 @@
 namespace Crochet {
   
   Platform::WindowManager& mWindowManager = Platform::WindowManager::getInstance();
+  Core::Logger& mLogger = Core::Logger::getInstance();
 
   RenderManager& RenderManager::getInstance(){
     static RenderManager instance = RenderManager();
@@ -11,8 +12,10 @@ namespace Crochet {
 
   void RenderManager::init(){
     mWindowManager.init();
-    
-    Crochet::Graphics::Shader shader = Crochet::Graphics::Shader("../Assets/Shaders/vert.glsl","../Assets/Shaders/frag.glsl");
+    mLogger.info("Successfully initialised Crochet WindowManager!");
+    mLogger.info("Successfully initialised Crochet RenderManager!");
+    Crochet::Graphics::Shader shader = Crochet::Graphics::Shader("./CrochetEngine/Assets/Shaders/vert.glsl","./CrochetEngine/Assets/Shaders/frag.glsl");
+    mLogger.info("Successfully initialised Crochet ShaderManager!");
 
     float vertices[] = {
       -0.5f,-0.5f,0.0f, 1.0f,0.0f,0.0f,
@@ -33,6 +36,8 @@ namespace Crochet {
     glEnableVertexAttribArray(1);
     
     glBindVertexArray(0);
+    
+    mLogger.info("Entering Crochet Render Loop!");
 
     while(!mWindowManager.shouldClose()){
       glClear(GL_COLOR_BUFFER_BIT);

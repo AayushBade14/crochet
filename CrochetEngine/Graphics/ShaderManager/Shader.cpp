@@ -4,6 +4,7 @@ namespace Crochet::Graphics {
   Crochet::Core::Logger& mLogger = Crochet::Core::Logger::getInstance();
 
   std::string Shader::loadFile(const std::string &path){
+    mLogger.warn("SHADER-PATH: "+path);
     std::string code;
     std::ifstream file;
 
