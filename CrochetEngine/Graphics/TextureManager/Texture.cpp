@@ -58,9 +58,8 @@ namespace Crochet::Graphics {
     glActiveTexture(GL_TEXTURE0+(this->val));
     glBindTexture(GL_TEXTURE_2D,mTextureID);
   }
-  /*
+
   void Texture::unbind(){
-    
+    glBindTexture(GL_TEXTURE_2D,0); 
   }
-*/
 }
