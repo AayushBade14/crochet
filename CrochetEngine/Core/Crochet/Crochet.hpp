@@ -39,5 +39,5 @@ namespace Crochet {
       Crochet() = default;
       Crochet (const Crochet&) = delete;
       Crochet& operator=(const Crochet&) = delete;
-  }
+  };
 }

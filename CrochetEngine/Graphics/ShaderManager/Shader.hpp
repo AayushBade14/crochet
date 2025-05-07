@@ -44,7 +44,7 @@
 namespace Crochet::Graphics {
   class Shader{
     public:
-      Shader(const std::string &vertexPath,std::string &fragmentPath);
+      Shader(const std::string &vertexPath,const std::string &fragmentPath);
       ~Shader();
 
       void use();

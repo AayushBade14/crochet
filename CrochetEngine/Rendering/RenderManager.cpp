@@ -5,14 +5,14 @@ namespace Crochet {
   Platform::WindowManager& mWindowManager = Platform::WindowManager::getInstance();
 
   RenderManager& RenderManager::getInstance(){
-    static RenderManager instance;
+    static RenderManager instance = RenderManager();
     return instance; 
   }
 
   void RenderManager::init(){
     mWindowManager.init();
     
-    Shader shader = Shader("vert.glsl","frag.glsl");
+    Crochet::Graphics::Shader shader = Crochet::Graphics::Shader("vert.glsl","frag.glsl");
 
     float vertices[] = {
       -0.5f,-0.5f,0.0f, 1.0f,0.0f,0.0f,

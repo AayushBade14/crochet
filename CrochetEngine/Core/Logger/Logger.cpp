@@ -12,7 +12,7 @@ namespace Crochet::Core {
     return instance;
   }
 
-  void Logger::log(const std::string& msg,LogLevel){
+  void Logger::log(const std::string& msg,LogLevel level){
     
     switch (level) {
       case LogLevel::INFO:
@@ -23,7 +23,7 @@ namespace Crochet::Core {
         break;
       case LogLevel::ERROR:
         std::cerr << RED << "[ERROR]: " << msg << WHITE << std::endl;
-        std::abort(1);
+        std::abort();
         break;
       default:
         std::cout << GREEN << "[INFO]: " << msg << WHITE << std::endl;     

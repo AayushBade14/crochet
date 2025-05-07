@@ -60,7 +60,8 @@ namespace Crochet {
       void init();
 
     private:
-      RenderManager(const RenderManager&) = delete;
+      RenderManager() = default;
+      RenderManager (const RenderManager&) = delete;
       RenderManager& operator=(const RenderManager&) = delete;
   };
 }

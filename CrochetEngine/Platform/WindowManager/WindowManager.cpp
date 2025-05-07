@@ -64,12 +64,12 @@ namespace Crochet::Platform {
     }
   }
 
-  int WindowManager::getWindowWidth() const{
+  int WindowManager::getWindowWidth(){
     glfwGetWindowSize(mWindow,&mWindowWidth,&mWindowHeight);
     return mWindowWidth;
   }
 
-  int WindowManager::getWindowHeight() const{
+  int WindowManager::getWindowHeight(){
     glfwGetWindowSize(mWindow,&mWindowWidth,&mWindowHeight);
     return mWindowHeight;
   }

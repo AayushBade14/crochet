@@ -27,12 +27,12 @@
 
 #pragma once
 
-#include "../core/Logger/Logger.hpp"
-#include "../core/Timer/Timer.hpp"
-#include "../core/Config/Config.hpp"
+#include "../Core/Logger/Logger.hpp"
+#include "../Core/Config/Config.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "../Core/Timer/Timer.hpp"
 
 namespace Crochet::Platform {
   class WindowManager{
@@ -44,8 +44,8 @@ namespace Crochet::Platform {
 
       GLFWwindow *getWindow();
       
-      int getWindowWidth() const;
-      int getWindowHeight() const;
+      int getWindowWidth();
+      int getWindowHeight();
       
       void setWindowRes(int width,int height);
 
@@ -63,7 +63,7 @@ namespace Crochet::Platform {
       int mWindowWidth = 0;
       int mWindowHeight = 0;
       
-      void framebuffer_size_callback(GLFWwindow *window,int width,int height);  
+      static void framebuffer_size_callback(GLFWwindow *window,int width,int height);  
     };
 }
 

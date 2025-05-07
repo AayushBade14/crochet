@@ -3,7 +3,7 @@
 namespace Crochet::Graphics {
   Crochet::Core::Logger& mLogger = Crochet::Core::Logger::getInstance();
 
-  const char* loadFile(std::string &path){
+  const char* Shader::loadFile(const std::string &path){
     std::string code;
     std::ifstream file;
 
@@ -14,7 +14,7 @@ namespace Crochet::Graphics {
       
       std::stringstream stream;
       
-      ss << file.rdbuf();
+      stream << file.rdbuf();
       
       file.close();
       
@@ -130,6 +130,6 @@ namespace Crochet::Graphics {
 
   void Shader::setMat4(const std::string& name,glm::mat4 &matrix) const{
     unsigned int loc = glGetUniformLocation(mProgramID,name.c_str());
-    glUniformMatrix4fv(loc,GL_FALSE,glm::value_ptr(matrix));
+    glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
   }
 }
