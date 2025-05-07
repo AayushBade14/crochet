@@ -44,7 +44,7 @@ namespace Crochet::Graphics {
     this->val = val;
     this->samplerName = samplerName;
     this->path = path;
-    this->shader = shader;
+    //this->shader = shader;
 
     loadTexture(path);
     bindSampler(samplerName,val,shader);
