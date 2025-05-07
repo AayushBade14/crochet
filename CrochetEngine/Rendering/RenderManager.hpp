@@ -49,7 +49,7 @@
 #include "../Core/Logger/Logger.hpp"
 #include "../Core/Timer/Timer.hpp"
 #include "../Platform/WindowManager/WindowManager.hpp"
-#include "../Input/InputManager/InputManager.hpp"
+//#include "../Input/InputManager/InputManager.hpp"
 #include "../Graphics/ShaderManager/Shader.hpp"
 
 namespace Crochet {
