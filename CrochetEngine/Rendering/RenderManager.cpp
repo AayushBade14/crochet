@@ -12,7 +12,7 @@ namespace Crochet {
   void RenderManager::init(){
     mWindowManager.init();
     
-    Crochet::Graphics::Shader shader = Crochet::Graphics::Shader("vert.glsl","frag.glsl");
+    Crochet::Graphics::Shader shader = Crochet::Graphics::Shader("../Assets/Shaders/vert.glsl","../Assets/Shaders/frag.glsl");
 
     float vertices[] = {
       -0.5f,-0.5f,0.0f, 1.0f,0.0f,0.0f,
