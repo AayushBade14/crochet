@@ -49,6 +49,8 @@ namespace Crochet::Platform {
     else{
       mLogger.info("Successfully initialized GLAD!");
     }
+
+    glfwSetFramebufferSizeCallback(mWindow,framebuffer_size_callback);    
   }
 
   void WindowManager::cleanup(){
@@ -94,5 +96,9 @@ namespace Crochet::Platform {
 
   void WindowManager::swapBuffers(){
     glfwSwapBuffers(mWindow);
+  }
+
+  void WindowManager::framebuffer_size_callback(GLFWwindow *window,int width,int height){
+    glViewport(0,0,width,height);
   }
 }

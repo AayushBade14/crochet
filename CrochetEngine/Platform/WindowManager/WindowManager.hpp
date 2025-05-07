@@ -62,6 +62,8 @@ namespace Crochet::Platform {
       GLFWwindow *mWindow = nullptr;
       int mWindowWidth = 0;
       int mWindowHeight = 0;
-  };
+      
+      void framebuffer_size_callback(GLFWwindow *window,int width,int height);  
+    };
 }
 
