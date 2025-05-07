@@ -40,13 +40,14 @@ namespace Crochet::Graphics {
     shader.setInt(samplerName,val);
   } 
 
-  Texture::Texture(const std::string& path,const std::string& samplerName,int val,Shader& shader){
+  Texture::Texture(const std::string& path,const std::string& samplerName,int val,Shader& shader,bool isPNG){
     this->val = val;
     this->samplerName = samplerName;
     this->path = path;
+    this->isPNG = isPNG;
     //this->shader = shader;
 
-    loadTexture(path);
+    loadTexture(path,isPNG);
     bindSampler(samplerName,val,shader);
   }
 

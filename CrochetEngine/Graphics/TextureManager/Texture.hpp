@@ -38,7 +38,7 @@
 namespace Crochet::Graphics {
   class Texture{
     public:
-      Texture(const std::string& path,const std::string& samplerName,int val,Shader& shader);
+      Texture(const std::string& path,const std::string& samplerName,int val,Shader& shader,bool isPNG);
       ~Texture();
       
       void bind();
@@ -48,9 +48,10 @@ namespace Crochet::Graphics {
       int val = 0;
       const std::string path;
       const std::string samplerName;
+      bool isPNG;
       //Shader shader;
 
-      void loadTexture(const std::string& path,bool isPNG);
+      void loadTexture(const std::string& path,bool isPNG=false);
       void bindSampler(const std::string& samplerName,int val,Shader& shader);
   };
 }
