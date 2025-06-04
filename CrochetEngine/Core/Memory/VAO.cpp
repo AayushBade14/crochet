@@ -9,19 +9,19 @@ namespace Crochet::Core {
     glBindVertexArray(0);
   }
 
-  void bind(){
+  void VAO::bind(){
     glBindVertexArray(ID);
   }
 
-  void unbind(){
+  void VAO::unbind(){
     glBindVertexArray(0);
   }
 
-  unsigned int getID(){
+  unsigned int VAO::getID(){
     return ID;
   }
 
-  void setAttribPointer(int attribNo, int attribCount, int stride, int start){
+  void VAO::setAttribPointer(int attribNo, int attribCount, int stride, int start){
     this.bind();
     glSetVertexAttribPointer(attribNo,attribCount,GL_FLOAT,GL_FALSE,stride*sizeof(float),(void*)(start*sizeof(float)));
     glEnableVertexAttribArray(attribNo);
@@ -29,7 +29,7 @@ namespace Crochet::Core {
     this.unbind();
   }
   
-  void cleanup(){
+  void VAO::cleanup(){
     glDestroyVertexArrays(1,&ID);
   }
 }

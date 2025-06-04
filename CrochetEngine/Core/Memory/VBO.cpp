@@ -8,19 +8,19 @@ namespace Crochet::Core {
     glBindBuffer(GL_ARRAY_BUFFER,0);
   }
 
-  unsigned int getID(){
+  unsigned int VBO::getID(){
     return ID;
   }
 
-  void bind(){
+  void VBO::bind(){
     glBindBuffer(GL_ARRAY_BUFFER,ID);
   }
 
-  void unbind(){
+  void VBO::unbind(){
     glBindBuffer(GL_ARRAY_BUFFER,0);
   }
 
-  void cleanup(){
+  void VBO::cleanup(){
     glDestroyBuffers(1,&ID);
   }
 }
