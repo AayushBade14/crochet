@@ -12,6 +12,8 @@ namespace Crochet::Core{
 
       void bind();
       void unbind();
+      
+      void cleanup();
 
     private:
       unsigned int ID;      
