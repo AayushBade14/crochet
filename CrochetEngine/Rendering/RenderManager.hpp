@@ -50,6 +50,8 @@
 //#include <glm/gtc/type_ptr.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 
+#include "../Core/Primitives/Primitives.hpp"
+
 #include "../Core/Logger/Logger.hpp"
 #include "../Core/Timer/Timer.hpp"
 #include "../Platform/WindowManager/WindowManager.hpp"

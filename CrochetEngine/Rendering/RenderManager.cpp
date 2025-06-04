@@ -20,17 +20,13 @@ namespace Crochet {
     
     mLogger.info("Successfully initialised Crochet ShaderManager!");
     
-    std::vector<float> vertices = {
-      -0.5f,-0.5f,0.0f, 1.0f,0.0f,0.0f,
-      0.5f,-0.5f,0.0f,  0.0f,1.0f,0.0f,
-      0.0f,0.5f,0.0f,   0.0f,0.0f,1.0f
-    };
+    std::vector<float> vertices = Core::quadVertices;
 
     Core::VBO vbo = Core::VBO(vertices);
     Core::VAO vao = Core::VAO(vbo);
     
-    vao.setAttribPointer(0,3,6,0);
-    vao.setAttribPointer(1,3,6,3);
+    vao.setAttribPointer(0,3,11,0);
+    vao.setAttribPointer(1,3,11,3);
 
     mLogger.info("Initialised Buffers!");
     mLogger.info("Entering Crochet Render Loop!");
