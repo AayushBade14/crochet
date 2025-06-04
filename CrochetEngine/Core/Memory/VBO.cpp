@@ -21,6 +21,6 @@ namespace Crochet::Core {
   }
 
   void VBO::cleanup(){
-    glDestroyBuffers(1,&ID);
+    glDeleteBuffers(1,&ID);
   }
 }

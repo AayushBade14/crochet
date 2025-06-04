@@ -19,7 +19,9 @@ OBJS = ./CrochetEngine/main.o \
        ./CrochetEngine/Rendering/RenderManager.o \
        ./CrochetEngine/Platform/WindowManager/WindowManager.o \
        ./CrochetEngine/Graphics/ShaderManager/Shader.o \
-       ./CrochetEngine/ThirdParty/glad/glad.o
+       ./CrochetEngine/ThirdParty/glad/glad.o \
+			 ./CrochetEngine/Core/Memory/VBO.o \
+			 ./CrochetEngine/Core/Memory/VAO.o
 
 # target
 TARGET = $(BUILD)/crochettest

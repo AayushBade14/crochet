@@ -22,14 +22,14 @@ namespace Crochet::Core {
   }
 
   void VAO::setAttribPointer(int attribNo, int attribCount, int stride, int start){
-    this.bind();
-    glSetVertexAttribPointer(attribNo,attribCount,GL_FLOAT,GL_FALSE,stride*sizeof(float),(void*)(start*sizeof(float)));
+    this->bind();
+    glVertexAttribPointer(attribNo,attribCount,GL_FLOAT,GL_FALSE,stride*sizeof(float),(void*)(start*sizeof(float)));
     glEnableVertexAttribArray(attribNo);
 
-    this.unbind();
+    this->unbind();
   }
   
   void VAO::cleanup(){
-    glDestroyVertexArrays(1,&ID);
+    glDeleteVertexArrays(1,&ID);
   }
 }

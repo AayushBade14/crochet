@@ -40,6 +40,10 @@
 #pragma once
 
 #include <glad/glad.h>
+
+#include "../Core/Memory/VBO.hpp"
+#include "../Core/Memory/VAO.hpp"
+
 #include <GLFW/glfw3.h>
 
 //#include <glm/glm.hpp>

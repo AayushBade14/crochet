@@ -37,6 +37,7 @@ namespace Crochet {
       0.0f,0.5f,0.0f,   0.0f,0.0f,1.0f
     };
 */
+  /*
     unsigned int VAO,VBO;
     glGenBuffers(1,&VBO);
     glGenVertexArrays(1,&VAO);
@@ -53,7 +54,12 @@ namespace Crochet {
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
-    
+  */
+    Core::VBO vbo = Core::VBO(gridLines);
+    Core::VAO vao = Core::VAO(vbo);
+  
+    vao.setAttribPointer(0,2,2,0);
+
     mLogger.info("Entering Crochet Render Loop!");
 
     while(!mWindowManager.shouldClose()){
@@ -61,17 +67,20 @@ namespace Crochet {
       mWindowManager.pollEvents();
 
       shader.use();
-      glBindVertexArray(VAO);
+      //glBindVertexArray(VAO);
       //glDrawArrays(GL_TRIANGLES,0,6);
+      vao.bind();
       glDrawArrays(GL_LINES,0,gridLines.size()/2);
 
-      glBindVertexArray(0);
-
+      //glBindVertexArray(0);
+      vao.unbind();
       mWindowManager.swapBuffers();
     }
-
+    
+    vao.cleanup();
+    vbo.cleanup();
     mWindowManager.cleanup();
-    glDeleteBuffers(1,&VBO);
-    glDeleteVertexArrays(1,&VAO);
+    //glDeleteBuffers(1,&VBO);
+    //glDeleteVertexArrays(1,&VAO);
   }
 }
