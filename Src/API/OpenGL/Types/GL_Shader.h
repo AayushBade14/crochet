@@ -11,6 +11,7 @@
 
 namespace OpenglTypes {
   
+  // enum class for specifying types of shader during compilation
   enum class GLShaderType{
     VERT,
     GEOM,
@@ -19,24 +20,35 @@ namespace OpenglTypes {
 
   class GLShader{
     private:
+      // shader properties
       GLuint mId;
       std::string mName;
+      std::string mVertPath = "NA";
+      std::string mGeomPath = "NA";
+      std::string mFragPath = "NA";
       
+      // helper methods
       std::string LoadFile(const std::string& path);
       GLuint CompileShader(const std::string& srcCode, GLShaderType type);
       void CreateShaderProgram(GLuint& vert, GLuint& frag);
       void CreateShaderProgram(GLuint& vert, GLuint& geom, GLuint& frag);
 
     public:
+      // constructors
       GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
       GLShader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
-      ~GLShader();
+      ~GLShader(); // destructor
       
+      // getter methods
       const GLuint& GetId() const {return mId;}
       const std::string& GetName() const {return mName;}
+      const std::string& GetVertPath() const {return mVertPath;}
+      const std::string& GetGeomPath() const {return mGeomPath;}
+      const std::string& GetFragPath() const {return mFragPath;}
 
-      void Use();
+      void Use(); // method to set the active shader to current shader
       
+      // templated method for setting uniform values
       template <typename T>
       void SetValue(const std::string& name, const T& val){
         GLuint loc = glGetUniformLocation(mId, name.c_str());

@@ -1,7 +1,7 @@
 #include "./GL_Shader.h"
 
 namespace OpenGLTypes {
-  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath): mName(name) {
+  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath): mName(name), mVertPath(vertPath), mFragPath(fragPath) {
     std::string vertCode = LoadFile(vertPath);
     std::string fragCode = LoadFile(fragPath);
 
@@ -13,7 +13,7 @@ namespace OpenGLTypes {
     std::cout<<mName<<" Successfully Created!"<<std::endl;
   }
 
-  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath): mName(name){
+  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath): mName(name), mVertPath(vertPath), mGeomPath(geomPath), mFragPath(fragPath){
     std::string vertCode = LoadFile(vertPath);
     std::string geomCode = LoadFile(geomPath);
     std::string fragCode = LoadFile(fragPath);
