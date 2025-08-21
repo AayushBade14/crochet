@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <iostream>
+#include <string>
 #include "../../../BackEnd/GLFW_BackEnd.h"
 
 namespace OpenGLBackEnd {
