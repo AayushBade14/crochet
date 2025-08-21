@@ -28,8 +28,6 @@ namespace GLFWBackEnd {
       return false;
     }
 
-    glfwMakeContextCurrent(mWindow);
-
     std::cout<<"GLFW::Init() Successful!"<<std::endl;
     return true;
   }
@@ -56,5 +54,8 @@ namespace GLFWBackEnd {
   bool WindowShouldClose(){
     return glfwWindowShouldClose(mWindow);
   }
-
+  
+  void MakeContextCurrent(){
+    glfwMakeContextCurrent(mWindow);
+  }
 }
