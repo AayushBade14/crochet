@@ -7,11 +7,12 @@
 namespace OpenGLBackEnd {
   void Init();
   
-  void* GetMemoryPointer(GLenum target);
-  void UnmapMemoryPointer();
-  
-  void Bind(GLenum target);
-  void Unbind(GLenum target);
+  void* GetMemoryPointer(GLenum target, GLenum access);
+  void UnmapMemoryPointer(GLenum target);
+  void FillMemoryManual(void* ptr, const void* data, int offset);
+
+  void BindBuffer(GLenum target, GLuint id);
+  void UnbindBuffer(GLenum target);
   
   void CopyBufferData(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeptr, GLsizeiptr size);
 
