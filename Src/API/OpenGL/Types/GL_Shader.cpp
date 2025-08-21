@@ -1,7 +1,7 @@
 #include "./GL_Shader.h"
 
 namespace OpenGLTypes {
-  Shader::Shader(const std::string& name, const std::string& vertPath, const std::string& fragPath): mName(name) {
+  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath): mName(name) {
     std::string vertCode = LoadFile(vertPath);
     std::string fragCode = LoadFile(fragPath);
 
@@ -13,7 +13,7 @@ namespace OpenGLTypes {
     std::cout<<mName<<" Successfully Created!"<<std::endl;
   }
 
-  Shader::Shader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath): mName(name){
+  GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath): mName(name){
     std::string vertCode = LoadFile(vertPath);
     std::string geomCode = LoadFile(geomPath);
     std::string fragCode = LoadFile(fragPath);
@@ -27,12 +27,12 @@ namespace OpenGLTypes {
     std::cout<<mName<<" Successfully Created!"<<std::endl;
   }
 
-  Shader::~Shader(){
+  GLShader::~GLShader(){
     glDeleteProgram(mId);
     std::cout<<mName<<" Resources Cleaned!"<<std::endl;  
   }
 
-  std::string Shader::LoadFile(const std::string& path){
+  std::string GLShader::LoadFile(const std::string& path){
     std::string code;
     std::ifstream file;
 
@@ -54,7 +54,7 @@ namespace OpenGLTypes {
     return code;
   }
 
-  GLuint Shader::CompileShader(const std::string& srcCode, ShaderType type){
+  GLuint GLShader::CompileShader(const std::string& srcCode, GLShaderType type){
     int success;
     char infoLog[512];
     GLuint shader;
@@ -62,15 +62,15 @@ namespace OpenGLTypes {
     std::string tname;
 
     switch (type) {
-      case ShaderType::VERT:
+      case GLShaderType::VERT:
         tname = "VERTEX";
         shader = glCreateShader(GL_VERTEX_SHADER);
         break;
-      case ShaderType::GEOM:
+      case GLShaderType::GEOM:
         tname = "GEOMETRY";
         shader = glCreateShader(GL_GEOMETRY_SHADER);
         break;
-      case ShaderType::FRAG:
+      case GLShaderType::FRAG:
         tname = "FRAGMENT";
         shader = glCreateShader(GL_FRAGMENT_SHADER);
         break;
@@ -91,7 +91,7 @@ namespace OpenGLTypes {
     return shader;
   }
   
-  void Shader::CreateShaderProgram(GLuint& vert, GLuint& frag){
+  void GLShader::CreateShaderProgram(GLuint& vert, GLuint& frag){
     mId = glCreateProgram();
     glAttachShader(mId, vert);
     glAttachShader(mId, frag);
@@ -113,7 +113,7 @@ namespace OpenGLTypes {
     std::cout<<"Linking::ShaderProgram("<<mName<<") "<<"Successful!"<<std::endl;
   }
   
-  void Shader::CreateShaderProgram(GLuint& vert, GLuint& geom, GLuint& frag){
+  void GLShader::CreateShaderProgram(GLuint& vert, GLuint& geom, GLuint& frag){
     mId = glCreateProgram();
     glAttachShader(mId, vert);
     glAttachShader(mId, geom);
@@ -137,7 +137,7 @@ namespace OpenGLTypes {
     std::cout<<"Linking::ShaderProgram("<<mName<<") "<<"Successful!"<<std::endl;
   }
 
-  void Shader::Use(){
+  void GLShader::Use(){
     glUseProgram(mId);
     std::cout<<"IN-USE: "<<mName<<std::endl;
   }

@@ -11,26 +11,26 @@
 
 namespace OpenglTypes {
   
-  enum class ShaderType{
+  enum class GLShaderType{
     VERT,
     GEOM,
     FRAG
   };
 
-  class Shader{
+  class GLShader{
     private:
       GLuint mId;
       std::string mName;
       
       std::string LoadFile(const std::string& path);
-      GLuint CompileShader(const std::string& srcCode, ShaderType type);
+      GLuint CompileShader(const std::string& srcCode, GLShaderType type);
       void CreateShaderProgram(GLuint& vert, GLuint& frag);
       void CreateShaderProgram(GLuint& vert, GLuint& geom, GLuint& frag);
 
     public:
-      Shader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
-      Shader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
-      ~Shader();
+      GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
+      GLShader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
+      ~GLShader();
       
       const GLuint& GetId() const {return mId;}
       const std::string& GetName() const {return mName;}

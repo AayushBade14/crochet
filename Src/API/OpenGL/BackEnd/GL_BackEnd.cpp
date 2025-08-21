@@ -34,7 +34,7 @@ namespace OpenGLBackEnd {
     glCopyBufferSubData(readtarget, writetarget, readoffset, writeoffset, size);
   }
 
-  Buffer::Buffer(GLenum target){
+  GLBuffer::GLBuffer(GLenum target){
     switch (target) {
       case GL_ARRAY_BUFFER:
         glGenBuffers(1,&mId);
@@ -59,7 +59,7 @@ namespace OpenGLBackEnd {
     mTarget = target;
   }
   
-  Buffer::~Buffer(){
+  GLBuffer::~GLBuffer(){
     switch (mTarget) {
       case GL_ARRAY_BUFFER:
         glDeleteBuffers(1,&mId);
@@ -82,7 +82,7 @@ namespace OpenGLBackEnd {
     }
   }
   
-  void Buffer::BindBuffer(){
+  void GLBuffer::BindBuffer(){
     switch (mTarget) {
       case GL_ARRAY_BUFFER:
         glBindBuffer(mTarget, mId);
@@ -105,7 +105,7 @@ namespace OpenGLBackEnd {
     }
   }
 
-  void Buffer::UnbindBuffer(){
+  void GLBuffer::UnbindBuffer(){
     switch (mTarget) {
       case GL_ARRAY_BUFFER:
         glBindBuffer(mTarget, 0);
@@ -128,43 +128,43 @@ namespace OpenGLBackEnd {
     }
   }
 
-  void Buffer::AllocateMemory(GLsizeiptr size, GLenum usage){
+  void GLBuffer::AllocateMemory(GLsizeiptr size, GLenum usage){
     glBufferData(mTarget, size, NULL, usage);
   }
   
-  void Buffer::FillPartialMemory(GLintptr offset, GLsizeiptr size, const void* data){
+  void GLBuffer::FillPartialMemory(GLintptr offset, GLsizeiptr size, const void* data){
     glBufferSubData(mTarget, offset, size, data);
   }
   
-  void Buffer::AllocateAndFillMemory(GLsizeiptr size, GLenum usage, const void* data){
+  void GLBuffer::AllocateAndFillMemory(GLsizeiptr size, GLenum usage, const void* data){
     glBufferData(mTarget, size, data, usage);
   }
 
-  void Buffer::InitRBOStorate(GLenum format, GLsizei width, GLsizei height){
+  void GLBuffer::InitRBOStorate(GLenum format, GLsizei width, GLsizei height){
     glRenderbufferStorage(mTarget, format, width, height);
   }
   
-  void Buffer::FBOAttachTexture(GLenum attachment, GLenum textarget, GLuint texture, GLint level){
+  void GLBuffer::FBOAttachTexture(GLenum attachment, GLenum textarget, GLuint texture, GLint level){
     glFramebufferTexture2D(mTarget, attachment, textarget, texture, level); 
   }
 
-  void Buffer::FBOAttachRBO(GLenum attachment, GLuint rbo){
+  void GLBuffer::FBOAttachRBO(GLenum attachment, GLuint rbo){
     glFramebufferRenderbuffer(mTarget, attachment, GL_RENDERBUFFER, rbo);
   }
 
-  GLuint Buffer::GetUniformBlockIndex(GLuint shader, GLchar* blockname){
+  GLuint GLBuffer::GetUniformBlockIndex(GLuint shader, GLchar* blockname){
     return glGetUniformBlockIndex(shader, blockname);
   }
   
-  void Buffer::SetUniformBlockBindingPoint(GLuint shader, GLuint ubindex, GLuint bindingpoint){
+  void GLBuffer::SetUniformBlockBindingPoint(GLuint shader, GLuint ubindex, GLuint bindingpoint){
     glUniformBlockBinding(shader, ubindex, bindingpoint);
   }
   
-  void Buffer::SetUBOBindingPoint(GLuint bindingpoint){
+  void GLBuffer::SetUBOBindingPoint(GLuint bindingpoint){
     glBufferBase(mTarget, bindingpoint, mId);
   }
   
-  void Buffer::SetPartialUBOBindingPoint(GLuint bindingpoint, GLintptr offset, GLsizeiptr size){
+  void GLBuffer::SetPartialUBOBindingPoint(GLuint bindingpoint, GLintptr offset, GLsizeiptr size){
     glBufferRange(mTarget, bindingpoint, mId, offset, size);
   }
 

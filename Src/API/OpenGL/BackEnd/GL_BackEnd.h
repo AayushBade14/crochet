@@ -17,7 +17,7 @@ namespace OpenGLBackEnd {
   
   void CopyBufferData(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeptr, GLsizeiptr size);
 
-  class Buffer{
+  class GLBuffer{
     private:
       GLuint mId;
       GLenum mTarget;
