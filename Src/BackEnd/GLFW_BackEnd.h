@@ -11,7 +11,11 @@ namespace GLFWBackEnd {
   void* GetWindowPointer();
   int GetWindowWidth();
   int GetWindowHeight();
-  
+  float GetDt();
+
   // booleans
   bool WindowShouldClose();
+
+  // timer
+  void UpdateTimer();
 }

@@ -2,10 +2,14 @@
 
 namespace GLFWBackEnd {
   GLFWwindow* mWindow = nullptr;
-
+  
   int mWindowWidth = 1920;
   int mWindowHeight = 1013;
   const char* mWindowTitle = "crochet";
+  
+  float mCurrentFrame = 0.0f;
+  float mLastFrame = 0.0f;
+  float mDt = 0.0f;
 
   bool Init(){
     if(glfwInit()<0){
@@ -57,5 +61,15 @@ namespace GLFWBackEnd {
   
   void MakeContextCurrent(){
     glfwMakeContextCurrent(mWindow);
+  }
+
+  void UpdateTimer(){
+    mCurrentFrame = (float)glfwGetTime();
+    mDt = mCurrentFrame - mLastFrame;
+    mLastFrame = mCurrentFrame;
+  }
+
+  float GetDt(){
+    return mDt;
   }
 }
