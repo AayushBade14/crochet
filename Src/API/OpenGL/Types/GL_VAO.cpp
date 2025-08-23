@@ -43,4 +43,19 @@ namespace OpenGLTypes {
     glDrawElements(mode, count, type, indices);
     Unbind();
   }
+
+  void GLVAO::InstancedDraw(GLenum mode, GLint first, GLsizei count, GLsizei instances){
+    Bind();
+    glDrawArraysInstanced(mode, first, count, instances);
+    Unbind();
+  }
+  
+  void GLVAO::InstancedDrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei instances){
+    Bind();
+    glDrawElementsInstanced(mode, count, type, indices, instances);
+  }
+
+  void GLVAO::SetAttribDivisor(GLuint index, GLuint value){
+    glAttribDivisor(index, value);
+  }
 }

@@ -13,7 +13,7 @@ void Render(){
   }
   OpenGLBackEnd::Init();
   
-  OpenGLTypes::GLShader shader("BasicShader", "./Res/Shaders/vert.glsl","./Res/Shaders/frag.glsl");
+  OpenGLTypes::GLShader shader("BasicShader", "./Res/Shaders/vert.glsl","./Res/Shaders/geom.glsl", "./Res/Shaders/frag.glsl");
   
   OpenGLTypes::GLVAO vao("TriangleVao");
   vao.Bind();
