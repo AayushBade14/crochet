@@ -1,6 +1,6 @@
 #pragma once
 
-#include <API/OpenGL/BackEnd/BackEnd.h>
+#include <API/OpenGL/BackEnd/GL_BackEnd.h>
 #include <BackEnd/GLFW_BackEnd.h>
 
 #include <API/OpenGL/Types/GL_Shader.h>
