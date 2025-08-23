@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include <BackEnd/GLFW_BackEnd.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace OpenGLBackEnd {
   void Init();
@@ -50,4 +53,13 @@ namespace OpenGLBackEnd {
       void SetUBOBindingPoint(GLuint bindingpoint);
       void SetPartialUBOBindingPoint(GLuint bindingpoint, GLintptr offset, GLsizeiptr size);
   };
+
+  void EnableDepthTest();
+  
+  void ClearColor(const glm::vec4& color);
+  
+  void UpdateViewport(GLint width, GLint height);
+
+  void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+  void SetFramebufferSizeCallback();
 }

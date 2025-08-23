@@ -168,4 +168,25 @@ namespace OpenGLBackEnd {
     glBufferRange(mTarget, bindingpoint, mId, offset, size);
   }
 
+  void EnableDepthTest(){
+    glEnable(GL_DEPTH_TEST);
+  } 
+
+  void ClearColor(const glm::vec4& color, GLenum clearbuffers){
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClearColor(clearbuffers);
+  }
+
+  void UpdateViewport(GLint width, GLint height){
+    glViewport(0, 0, width, height);
+  }  
+  
+  
+  void framebuffer_size_callback(GLFWwindow* window, GLint width, GLint height){
+    UpdateViewport(width, height);
+  }
+
+  void SetFramebufferSizeCallback(){
+    glfwSetFramebufferSizeCallback(GLFWBackEnd::GetWindowPointer, framebuffer_size_callback); 
+  }  
 }
