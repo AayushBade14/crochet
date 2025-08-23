@@ -21,5 +21,8 @@ namespace OpenGLTypes {
       void SetAttribPointer(GLuint index, GLint size, GLsizei stride, GLsizei offset);
       void SetAttribIPointer(GLuint index, GLint size, GLsizei stride, GLsizei offset);
       void SetAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLsizei offset);
+      
+      void Draw(GLenum mode, GLint first, GLsizei count);
+      void DrawIndexed(GLenum mode, GLsizei cout, GLenum type, const void* data);
   }; 
 }

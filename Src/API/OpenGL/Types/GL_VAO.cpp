@@ -31,4 +31,16 @@ namespace OpenGLTypes {
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
   }
+
+  void GLVAO::Draw(GLenum mode, GLint first, GLsizei count){
+    Bind();
+    glDrawArrays(mode, first, count);
+    Unbind();
+  }
+  
+  void GLVAO::DrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices){
+    Bind();
+    glDrawElements(mode, count, type, indices);
+    Unbind();
+  }
 }
