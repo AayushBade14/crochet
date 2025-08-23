@@ -18,4 +18,7 @@ namespace GLFWBackEnd {
 
   // timer
   void UpdateTimer();
+
+  void SwapBuffers();
+  void PollEvents();
 }

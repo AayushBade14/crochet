@@ -72,4 +72,12 @@ namespace GLFWBackEnd {
   float GetDt(){
     return mDt;
   }
+
+  void SwapBuffers(){
+    glfwSwapBuffers(mWindow);
+  }
+
+  void PollEvents(){
+    glfwPollEvents();
+  }
 }

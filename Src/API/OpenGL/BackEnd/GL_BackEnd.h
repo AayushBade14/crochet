@@ -56,7 +56,7 @@ namespace OpenGLBackEnd {
 
   void EnableDepthTest();
   
-  void ClearColor(const glm::vec4& color);
+  void ClearColor(const glm::vec4& color, GLenum clearbuffers);
   
   void UpdateViewport(GLint width, GLint height);
 
