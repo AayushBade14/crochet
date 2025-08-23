@@ -1,4 +1,4 @@
-#include "./GLFW_BackEnd.h"
+#include <BackEnd/GLFW_BackEnd.h>
 
 namespace GLFWBackEnd {
   GLFWwindow* mWindow = nullptr;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../BackEnd/GL_BackEnd.h"
+#include <API/OpenGL/BackEnd/GL_BackEnd.h>
 #include <vector>
-#include "stb_image.h"
+#include <Vendor/Stb/stb_image.h>
 
 namespace OpenGLTypes {
   class GLTexture{

@@ -1,4 +1,4 @@
-#include "./GL_Shader.h"
+#include <API/OpenGL/Types/GL_Shader.h>
 
 namespace OpenGLTypes {
   GLShader::GLShader(const std::string& name, const std::string& vertPath, const std::string& fragPath): mName(name), mVertPath(vertPath), mFragPath(fragPath) {

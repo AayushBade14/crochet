@@ -1,4 +1,4 @@
-#include <Types/GL_VBO.h>
+#include <API/OpenGL/Types/GL_VBO.h>
 
 namespace OpenGLTypes {
   GLVBO::GLVBO(const std::string& name): mVbo(GL_ARRAY_BUFFER), mName(name) {}

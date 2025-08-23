@@ -1,4 +1,4 @@
-#include "./GL_Texture.h"
+#include <API/OpenGL/Types/GL_Texture.h>
 
 namespace OpenGLTypes {
   GLTexture::GLTexture(const std::string& path){

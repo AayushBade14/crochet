@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BackEnd/GL_BackEnd.h"
+#include <API/OpenGL/BackEnd/GL_BackEnd.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
