@@ -19,17 +19,17 @@ namespace OpenGLTypes {
 
   void GLVAO::SetAttribPointer(GLuint index, GLint size, GLsizei stride, GLsizei offset){
     glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)(intptr_t)offset);
   }
 
   void GLVAO::SetAttribIPointer(GLuint index, GLint size, GLsizei stride, GLsizei offset){
     glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, size, GL_INT, stride, (void*)offset);
+    glVertexAttribIPointer(index, size, GL_INT, stride, (void*)(intptr_t)offset);
   }
   
-  void GLVAO::SetAttribIPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLsizei offset){
+  void GLVAO::SetAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLsizei offset){
     glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
+    glVertexAttribPointer(index, size, type, normalized, stride, (void*)(intptr_t)offset);
   }
 
   void GLVAO::Draw(GLenum mode, GLint first, GLsizei count){

@@ -1,5 +1,11 @@
 #include <Renderer/Renderer.h>
 
+float vertices[] = {
+  -0.5f, -0.5f, 0.0f,
+  0.5f, -0.5f,  0.0f,
+  0.0f, 0.5f, 0.0f
+};
+
 void Render(){
   
   if(GLFWBackEnd::Init()){
@@ -29,7 +35,7 @@ void Render(){
     OpenGLBackEnd::ClearColor(glm::vec4(0.0f,0.0f,0.0f,1.0f),GL_COLOR_BUFFER_BIT);
 
     shader.Use();
-    vao.Draw();
+    vao.Draw(GL_TRIANGLES, 0, 3);
 
     GLFWBackEnd::SwapBuffers();
   }

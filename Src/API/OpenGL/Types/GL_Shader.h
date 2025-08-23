@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 
-namespace OpenglTypes {
+namespace OpenGLTypes {
   
   // enum class for specifying types of shader during compilation
   enum class GLShaderType{

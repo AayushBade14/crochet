@@ -26,8 +26,8 @@ namespace OpenGLBackEnd {
       GLenum mTarget;
 
     public:
-      Buffer(GLenum target);
-      ~Buffer();
+      GLBuffer(GLenum target);
+      ~GLBuffer();
       
       const GLuint& GetId() const {return mId;}
       GLenum GetTarget() {return mTarget;}

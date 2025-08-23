@@ -1,4 +1,4 @@
-#include <API/OpenGL/Backend/GL_BackEnd.h>
+#include <API/OpenGL/BackEnd/GL_BackEnd.h>
 
 namespace OpenGLBackEnd {
   void Init(){
@@ -77,7 +77,7 @@ namespace OpenGLBackEnd {
         glDeleteBuffers(1,&mId);
         break;
       default:
-        std::cout<<"ERROR: "<<target<<" is not a known target-type!"<<std::endl;
+        std::cout<<"ERROR: "<<mTarget<<" is not a known target-type!"<<std::endl;
         break;
     }
   }
@@ -100,7 +100,7 @@ namespace OpenGLBackEnd {
         glBindBuffer(mTarget, mId);
         break;
       default:
-        std::cout<<"ERROR: "<<target<<" is not a known target-type!"<<std::endl;
+        std::cout<<"ERROR: "<<mTarget<<" is not a known target-type!"<<std::endl;
         break;
     }
   }
@@ -123,7 +123,7 @@ namespace OpenGLBackEnd {
         glBindBuffer(mTarget, 0);
         break;
       default:
-        std::cout<<"ERROR: "<<target<<" is not a known target-type!"<<std::endl;
+        std::cout<<"ERROR: "<<mTarget<<" is not a known target-type!"<<std::endl;
         break;
     }
   }
@@ -140,7 +140,7 @@ namespace OpenGLBackEnd {
     glBufferData(mTarget, size, data, usage);
   }
 
-  void GLBuffer::InitRBOStorate(GLenum format, GLsizei width, GLsizei height){
+  void GLBuffer::InitRBOStorage(GLenum format, GLsizei width, GLsizei height){
     glRenderbufferStorage(mTarget, format, width, height);
   }
   
@@ -161,11 +161,11 @@ namespace OpenGLBackEnd {
   }
   
   void GLBuffer::SetUBOBindingPoint(GLuint bindingpoint){
-    glBufferBase(mTarget, bindingpoint, mId);
+    glBindBufferBase(mTarget, bindingpoint, mId);
   }
   
   void GLBuffer::SetPartialUBOBindingPoint(GLuint bindingpoint, GLintptr offset, GLsizeiptr size){
-    glBufferRange(mTarget, bindingpoint, mId, offset, size);
+    glBindBufferRange(mTarget, bindingpoint, mId, offset, size);
   }
 
   void EnableDepthTest(){
@@ -174,7 +174,7 @@ namespace OpenGLBackEnd {
 
   void ClearColor(const glm::vec4& color, GLenum clearbuffers){
     glClearColor(color.x, color.y, color.z, color.w);
-    glClearColor(clearbuffers);
+    glClear(clearbuffers);
   }
 
   void UpdateViewport(GLint width, GLint height){
@@ -187,6 +187,6 @@ namespace OpenGLBackEnd {
   }
 
   void SetFramebufferSizeCallback(){
-    glfwSetFramebufferSizeCallback(GLFWBackEnd::GetWindowPointer, framebuffer_size_callback); 
+    glfwSetFramebufferSizeCallback(static_cast<GLFWwindow*>(GLFWBackEnd::GetWindowPointer()), framebuffer_size_callback); 
   }  
 }

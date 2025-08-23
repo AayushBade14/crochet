@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 namespace GLFWBackEnd {
   bool Init(); // method to initialize glfw

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <API/OpenGL/Backend/GL_BackEnd.h>
+#include <API/OpenGL/BackEnd/GL_BackEnd.h>
 
 namespace OpenGLTypes {
   class GLVAO{

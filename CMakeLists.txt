@@ -87,6 +87,7 @@ target_include_directories(
   ogl_backend
   PUBLIC
   Src
+  Vendor
 )
 
 target_link_libraries(
@@ -114,7 +115,7 @@ target_include_directories(
 target_link_libraries(
   renderer
   PUBLIC
-  ogl-backend
+  ogl_backend
   glfw_backend
   glshader
   glvbo

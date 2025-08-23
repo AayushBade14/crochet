@@ -5,14 +5,14 @@
 namespace OpenGLTypes {
   class GLVBO{
     private:
-      GLBuffer mVbo;
+      OpenGLBackEnd::GLBuffer mVbo;
       std::string mName = "VBO";
 
     public:
       GLVBO(const std::string& name);
       ~GLVBO() = default;
       
-      const GLBuffer& GetBufferObject() const {return mVbo;}
+      const OpenGLBackEnd::GLBuffer& GetBufferObject() const {return mVbo;}
       const std::string& GetName() const {return mName;}
       GLenum GetTarget() {return mVbo.GetTarget();}
       const GLuint& GetId() const {return mVbo.GetId();}

@@ -7,10 +7,6 @@
 #include <API/OpenGL/Types/GL_VBO.h>
 #include <API/OpenGL/Types/GL_VAO.h>
 
-float vertices = {
-  -0.5f, -0.5f, 0.0f,
-  0.5f, -0.5f,  0.0f,
-  0.0f, 0.5f, 0.0f
-};
+extern float vertices[];
 
 void Render();

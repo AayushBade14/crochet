@@ -5,8 +5,8 @@ namespace OpenGLTypes {
     std::string vertCode = LoadFile(vertPath);
     std::string fragCode = LoadFile(fragPath);
 
-    GLuint vert = CompileShader(vertCode, ShaderType::VERT);
-    GLuint frag = CompileShader(fragCode, ShaderType::FRAG);
+    GLuint vert = CompileShader(vertCode, GLShaderType::VERT);
+    GLuint frag = CompileShader(fragCode, GLShaderType::FRAG);
 
     CreateShaderProgram(vert, frag);
 
@@ -18,9 +18,9 @@ namespace OpenGLTypes {
     std::string geomCode = LoadFile(geomPath);
     std::string fragCode = LoadFile(fragPath);
 
-    GLuint vert = CompileShader(vertCode, ShaderType::VERT);
-    GLuint geom = CompileShader(geomCode, ShaderType::GEOM);
-    GLuint frag = CompileShader(fragCode, ShaderType::FRAG);
+    GLuint vert = CompileShader(vertCode, GLShaderType::VERT);
+    GLuint geom = CompileShader(geomCode, GLShaderType::GEOM);
+    GLuint frag = CompileShader(fragCode, GLShaderType::FRAG);
 
     CreateShaderProgram(vert, geom, frag);
     
@@ -58,7 +58,7 @@ namespace OpenGLTypes {
     int success;
     char infoLog[512];
     GLuint shader;
-    GLchar* code = srcCode.c_str();
+    const GLchar* code = srcCode.c_str();
     std::string tname;
 
     switch (type) {
