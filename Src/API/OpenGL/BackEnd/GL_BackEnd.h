@@ -32,7 +32,7 @@ namespace OpenGLBackEnd {
       void BindBuffer();
       void UnbindBuffer();
       
-      // VBO specific
+      // VBO/EBO specific
       void AllocateMemory(GLsizeiptr size, GLenum usage);
       void FillPartialMemory(GLintptr offset, GLsizeiptr size, const void* data);
       void AllocateAndFillMemory(GLsizeiptr size, GLenum usage, const void* data);
