@@ -28,6 +28,6 @@ namespace OpenGLTypes {
       void DrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices);
       
       void InstancedDraw(GLenum mode, GLint first, GLsizei count, GLsizei instances);
-      void InstancedDrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices);
+      void InstancedDrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei instances);
   }; 
 }

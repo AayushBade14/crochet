@@ -2,9 +2,9 @@
 
 out vec4 fragColor;
 
-in GS_OUT{
-  vec3 pos;
-}fs_in;
+//in GS_OUT{
+  //vec3 pos;
+//}fs_in;
   
 void main(){
   vec2 st = gl_FragCoord.xy/vec2(1920.0,1013.0);

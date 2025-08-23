@@ -53,9 +53,10 @@ namespace OpenGLTypes {
   void GLVAO::InstancedDrawIndexed(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei instances){
     Bind();
     glDrawElementsInstanced(mode, count, type, indices, instances);
+    Unbind();
   }
 
   void GLVAO::SetAttribDivisor(GLuint index, GLuint value){
-    glAttribDivisor(index, value);
+    glVertexAttribDivisor(index, value);
   }
 }
