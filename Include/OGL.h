@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <Stb/stb_image.h>
 
 enum class ShaderType{
   VERT,
@@ -29,6 +30,8 @@ class Shader{
     Shader(const std::string& name, const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
 
     ~Shader();
+  
+    const unsigned int& GetId() const {return mId;}
 
     void Use();
 
@@ -60,11 +63,87 @@ class VBO{
   public:
     VBO(const std::string& name);
     ~VBO();
+    
+    const unsigned int& GetId() const {return mId;}
 
     void Bind();
     void Unbind();
 
-    void AllocateAndFillMemory(GLenum usage, size_t size, const void* data);
-    void AllocateMemory(GLenum usage, size_t size);
-    void FillPartialMemory(size_t size, size_t offset, const void* data);
+    void AllocateAndFillMemory(GLenum usage, GLsizeiptr size, const void* data);
+    void AllocateMemory(GLenum usage, GLsizeiptr size);
+    void FillPartialMemory(GLsizeiptr size, GLintptr offset, const void* data);
+};
+
+class VAO{
+  private:
+    std::string mName;
+    unsigned int mId;
+
+  public:
+    VAO(const std::string& name);
+    ~VAO();
+    
+    const unsigned int& GetId() const {return mId;}
+
+    void Bind();
+    void Unbind();
+
+    void SetAttribPointer(int loc, int nrvals, int stride, int start);
+};
+
+class Texture2D{
+  private:
+    std::string mName;
+    GLenum mType;
+    unsigned int mId;    
+
+  public:
+    Texture2D(const std::string& name);
+    ~Texture2D();
+    
+    const unsigned int& GetId() const {return mId;}
+
+    void LoadTexture(const std::string& path, bool generateMipmap);
+
+    void Bind();
+    void Unbind();
+
+    void SetWrapS(GLenum value);
+    void SetWrapT(GLenum value);
+    void SetWrapR(GLenum value);
+
+    void SetMinFilter(GLenum value);
+    void SetMagFilter(GLenum value);
+
+    void SetSamplerValue(Shader& shader, const std::string& name, int value);
+    void ActivateTextureUnit(int value);
+};
+
+class Texture3D{
+  private:
+    std::string mName;
+    GLenum mType;
+    unsigned int mId;
+  
+  public:
+    Texture3D(const std::string& name);
+    ~Texture3D();
+    
+    const unsigned int& GetId() const {return mId;}
+
+    void LoadTexture(const std::vector<std::string>& paths);
+
+    void Bind();
+    void Unbind();
+
+
+    void SetWrapS(GLenum value);
+    void SetWrapT(GLenum value);
+    void SetWrapR(GLenum value);
+
+    void SetMinFilter(GLenum value);
+    void SetMagFilter(GLenum value);
+
+    void SetSamplerValue(Shader& shader, const std::string& name, int value);
+    void ActivateTextureUnit(int value); 
 };
