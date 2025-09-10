@@ -50,3 +50,21 @@ class Shader{
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(val));
     }
 };
+
+class VBO{
+  private:
+    std::string mName;  
+    GLenum mType;
+    unsigned int mId;
+     
+  public:
+    VBO(const std::string& name);
+    ~VBO();
+
+    void Bind();
+    void Unbind();
+
+    void AllocateAndFillMemory(GLenum usage, size_t size, const void* data);
+    void AllocateMemory(GLenum usage, size_t size);
+    void FillPartialMemory(size_t size, size_t offset, const void* data);
+};

@@ -132,4 +132,30 @@ void Shader::CreateShaderProgram(const unsigned int& vert, const unsigned int& g
   glDeleteShader(frag);
 }
 
+VBO::VBO(const std::string& name): mName(name), mType(GL_ARRAY_BUFFER){
+  glGenBuffers(1,&mId);
+}
 
+VBO::~VBO(){
+  glDeleteBuffers(1,&mId);
+}
+
+void VBO::Bind(){
+  glBindBuffer(mType, mId);
+}
+
+void VBO::Unbind(){
+  glBindBuffer(mType, 0);
+}
+
+void VBO::AllocateAndFillMemory(GLenum usage, size_t size, const void* data){
+  glBufferData(mType, size, data, usage);
+}
+
+void VBO::AllocateMemory(Glenum usage, size_t size){
+  glBufferData(mType, size, NULL, usage);
+}
+
+void VBO::FillPartialMemory(size_t size, size_t offset, const void* data){
+  glBufferSubData(mType, offset, size, data);
+}
