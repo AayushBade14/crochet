@@ -1,3 +1,7 @@
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,6 +14,15 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+glm::vec2 AiToGlm(const aiVector2D& v) {return glm::vec2(v.x, v.y);}
+glm::vec3 AiToGlm(const aiVector3D& v) {return glm::vec3(v.x, v.y, v.z);}
+glm::mat4 AiToGlm(const aiMatrix4x4& m) {return glm::transpose(glm::mat4(
+  m.a1, m.a2, m.a3, m.a4,
+  m.b1, m.b2, m.b3, m.b4,
+  m.c1, m.c2, m.c3, m.c4,
+  m.d1, m.d2, m.d3, m.d4
+));}
 
 struct Shader{
   unsigned int mId;
@@ -97,6 +110,122 @@ private:
   }
 };
 
+struct Vertex{
+  glm::vec3 mPosition;
+  glm::vec3 mNormal;
+  glm::vec2 mTexCoords;
+};
+
+struct Mesh{
+  unsigned int mVbo;
+  unsigned int mEbo;
+  unsigned int mVao;
+
+  std::vector<Vertex> mVertices;
+  std::vector<unsigned int> mIndices;
+  
+  Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices){
+    mVertices = vertices;
+    mIndices = indices;
+    SetupMesh();
+  }
+
+  ~Mesh() = default;
+
+  void Draw(Shader& shader){
+    shader.Use();
+    glBindVertexArray(mVao);
+    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+  }
+
+private:
+
+  void SetupMesh(){
+    glGenVertexArrays(1, &mVao);
+    glGenBuffers(1, &mVbo);
+    glGenBuffers(1, &mEbo);
+
+    glBindVertexArray(mVao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    glBufferData(GL_ARRAY_BUFFER, mVertices.size() * sizeof(Vertex), mVertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices.size() * sizeof(unsigned int), mIndices.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mPosition));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mNormal));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mTexCoords));
+
+    glBindVertexArray(0);
+  }
+};
+
+struct Model{
+  std::vector<Mesh> mModelMeshes;
+
+  Model(const std::string& path){
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_GenNormals);
+
+    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE | !scene->mRootNode){
+      std::cerr<<importer.GetErrorString()<<std::endl;
+      exit(1);
+    }
+
+    ProcessNode(scene->mRootNode, scene);
+  }
+
+  ~Model() = default;
+
+  void Draw(Shader& shader){
+    for(auto& mesh : mModelMeshes)
+      mesh.Draw(shader);
+  }
+
+private:
+  void ProcessNode(aiNode* node, const aiScene* scene){
+    for(unsigned int meshIndex = 0; meshIndex < node->mNumMeshes; meshIndex++){
+      aiMesh* mesh = scene->mMeshes[node->mMeshes[meshIndex]];
+      mModelMeshes.push_back(ProcessMesh(mesh, scene));
+    }
+
+    for(unsigned int childIndex = 0; childIndex < node->mNumChildren; childIndex++){
+      ProcessNode(node->mChildren[childIndex], scene);
+    }
+  }
+
+  Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene){
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    for(unsigned int vertIndex = 0; vertIndex < mesh->mNumVertices; vertIndex++){
+      Vertex v;
+
+      v.mPosition = AiToGlm(mesh->mVertices[vertIndex]);
+      if(mesh->HasNormals())
+        v.mNormal = AiToGlm(mesh->mNormals[vertIndex]);
+      if(mesh->HasTextureCoords(0))
+        v.mTexCoords = AiToGlm(mesh->mTextureCoords[0][vertIndex]);
+      
+      vertices.push_back(v);
+    }
+
+    for(unsigned int faceIndex = 0; faceIndex < mesh->mNumFaces; faceIndex++){
+      aiFace face = mesh->mFaces[faceIndex];
+      for(unsigned int index = 0; index < face.mNumIndices; index++){
+        indices.push_back(face.mIndices[index]);
+      }
+    }
+
+    return Mesh(vertices, indices);
+  }
+};
+
 int WIDTH = 1920;
 int HEIGHT = 1013;
 const char* TITLE = "crochet";
@@ -124,48 +253,33 @@ int main(void){
 
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   
-  float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
-  };
-  
-  unsigned int vbo;
-  unsigned int vao;
-
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
-
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-
-  glBindVertexArray(0);
-  
   Shader shader("../vert.glsl", "../frag.glsl");
+  Model player("../monkey.obj");
   
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+  
+  glEnable(GL_DEPTH_TEST);
+  
   while(!glfwWindowShouldClose(window)){
     glfwPollEvents();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 5.0f) + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH/(float)HEIGHT, 0.1f, 1000.0f);
     
     shader.Use();
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-  
+    shader.SetValue("model", model);
+    shader.SetValue("view", view);
+    shader.SetValue("projection", projection);
+
+    player.Draw(shader);
+    
     glfwSwapBuffers(window);
   }
 
-  glDeleteVertexArrays(1, &vao);
-  glDeleteBuffers(1, &vbo);
-  
   glfwDestroyWindow(window);
   glfwTerminate();
 

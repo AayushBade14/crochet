@@ -15,6 +15,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 
+FetchContent_Declare(
+  assimp
+  GIT_REPOSITORY https://github.com/assimp/assimp.git
+  GIT_TAG v6.0.2
+)
+FetchContent_MakeAvailable(assimp)
+
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(glm)
@@ -40,4 +47,5 @@ target_link_libraries(
   glad
   OpenGL::GL
   glfw
+  assimp
 )
