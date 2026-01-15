@@ -17,7 +17,7 @@ class GLFWContext;
 
 namespace Crochet
 {
-  class GLFWWindow
+  class GLFWWindow : public Window
   {
     private:
       
