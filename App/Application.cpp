@@ -12,7 +12,7 @@
 
 namespace Crochet
 {
-  Application::Run()
+  void Application::Run()
   {
     WindowProp prop;
     prop.Width = 1280;

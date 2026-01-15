@@ -8,6 +8,8 @@
 
 #include "./GLFWContext.h"
 
+#include <GLFW/glfw3.h>
+
 namespace Crochet
 {
   GLFWContext::GLFWContext()

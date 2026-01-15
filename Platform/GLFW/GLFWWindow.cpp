@@ -6,17 +6,13 @@
 //  Author: Aayush Bade 2026 (aayushbade14.github.io/Portfolio)
 //-------------------------------------------------------------------------
 
-#pragma once
-
 #include "./GLFWWindow.h"
-
-#include "./GLFWContext.h"
 
 #include <GLFW/glfw3.h>
 
 namespace Crochet
 {
-  GLFWWindow::GLFWWindow(const WindowProp& prop) :  GLFWContext()
+  GLFWWindow::GLFWWindow(const WindowProp& prop) :  m_Context()
   {
     m_WindowProp.Width = prop.Width;
     m_WindowProp.Height = prop.Height;
@@ -35,37 +31,37 @@ namespace Crochet
     glfwMakeContextCurrent(m_Window);
   }
 
-  GLFWWindow::~GLFWWindow() override
+  GLFWWindow::~GLFWWindow()
   {
     glfwDestroyWindow(m_Window);
   }
 
-  void* GLFWWindow::GetNativeHandle() const override
+  void* GLFWWindow::GetNativeHandle() const
   {
     return static_cast<void*>(m_Window);
   }
 
-  bool GLFWWindow::ShouldClose() const override
+  bool GLFWWindow::ShouldClose() const
   {
     return glfwWindowShouldClose(m_Window);
   }
 
-  int GLFWWindow::GetWidth() const override
+  int GLFWWindow::GetWidth() const
   {
     return m_WindowProp.Width;
   }
 
-  int GLFWWindow::GetHeight() const override
+  int GLFWWindow::GetHeight() const
   {
     return m_WindowProp.Height;
   }
 
-  void GLFWWindow::PollEvents() override
+  void GLFWWindow::PollEvents()
   {
     glfwPollEvents();
   }
 
-  void GLFFWWindow::SwapBuffers() override
+  void GLFWWindow::SwapBuffers()
   {
     glfwSwapBuffers(m_Window);
   }

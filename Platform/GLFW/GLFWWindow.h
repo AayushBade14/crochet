@@ -10,10 +10,10 @@
 
 #include "../../Core/Window/Window.h"
 #include "../../Core/Window/WindowProp.h"
+#include "./GLFWContext.h"
 
 //forward declaring
 struct GLFWwindow;
-class GLFWContext;
 
 namespace Crochet
 {
