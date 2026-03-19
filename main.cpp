@@ -29,7 +29,7 @@ int main(void)
 
   window = glfwCreateWindow(Width,
                             Height,
-                            Title,
+                            Title.c_str(),
                             nullptr,
                             nullptr);
 
