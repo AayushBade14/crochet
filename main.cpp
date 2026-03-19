@@ -11,12 +11,23 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <ctime>
 
 #include "./Vendor/stb_image/stb_image.h"
 
 int Width = 1920;
 int Height = 1013;
 std::string Title = "crochet-editor";
+
+const int TILE_SIZE = 32;
+const int CHUNK_SIZE = 32;
+
+glm::vec2 camPos = glm::vec2(1.0f);
+
+float dt = 0.0f;
+float lastFrame = 0.0f;
+
+float zoom = 1.0f;
 
 GLFWwindow* window = nullptr;
 
@@ -53,8 +64,8 @@ struct Shader
     else if constexpr(std::is_same_v<T, bool>) glUniform1i(loc, (int)val);
     else if constexpr(std::is_same_v<T, float>) glUniform1f(loc, val);
     else if constexpr(std::is_same_v<T, glm::vec2>) glUniform2fv(loc, 1, glm::value_ptr(val));
-    else if constexpr(std::is_same_v<T, bool>) glUniform3fv(loc, 1, glm::value_ptr(val));
-    else if constexpr(std::is_same_v<T, bool>) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
+    else if constexpr(std::is_same_v<T, glm::vec3>) glUniform3fv(loc, 1, glm::value_ptr(val));
+    else if constexpr(std::is_same_v<T, glm::mat4>) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(val));
   }
 
 private:
@@ -123,9 +134,142 @@ private:
   }
 };
 
+void ProcessInput()
+{
+  if(glfwGetKey(window, GLFW_KEY_ESCAPE)==GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+
+  if(glfwGetKey(window, GLFW_KEY_T)==GLFW_PRESS)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS)
+    camPos.y += 4 * TILE_SIZE * dt;
+  if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS)
+    camPos.y -= 4 * TILE_SIZE * dt;
+  if(glfwGetKey(window, GLFW_KEY_A)==GLFW_PRESS)
+    camPos.x -= 4 * TILE_SIZE * dt;
+  if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS)
+    camPos.x += 4 * TILE_SIZE * dt;
+
+}
+
+struct Tile
+{
+  uint32_t m_ID;
+};
+
+
+struct Chunk
+{
+  float m_XPos;
+  float m_YPos;
+
+  Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
+  
+  std::vector<float> m_VertexData;
+  
+  unsigned int m_Vbo;
+  unsigned int m_Vao;
+  
+  void InitChunk()
+  {
+    glGenVertexArrays(1, &m_Vao);
+    glGenBuffers(1, &m_Vbo);
+    
+    for(int i = 0; i < CHUNK_SIZE; i++)
+    {
+      for(int j = 0; j < CHUNK_SIZE; j++)
+      {
+        m_Tiles[j][i].m_ID = rand() % 10;
+      }
+    }
+  }
+
+  void push(float x, float y, float u, float v)
+  {
+    m_VertexData.push_back(x);
+    m_VertexData.push_back(y);
+    m_VertexData.push_back(u);
+    m_VertexData.push_back(v);
+  }
+  
+  void BakeVertices()
+  {
+    m_VertexData.clear();
+    for(int i = 0; i < CHUNK_SIZE; i++)
+    {
+      for(int j = 0; j < CHUNK_SIZE; j++)
+      {
+        Tile tile = m_Tiles[j][i];
+        
+        float TileStartX = m_XPos + j * TILE_SIZE;
+        float TileStartY = m_YPos + i * TILE_SIZE;
+
+        float x1 = TileStartX;
+        float y1 = TileStartY;
+
+        float x2 = TileStartX + TILE_SIZE;
+        float y2 = TileStartY;
+
+        float x3 = x2;
+        float y3 = TileStartY + TILE_SIZE;
+
+        float x4 = x1;
+        float y4 = y3;
+        
+        int tileX = tile.m_ID % 3;
+        int tileY = tile.m_ID / 3;
+
+        float u1 = (tileX * TILE_SIZE) / 96.0f;
+        float v1 = (tileY * TILE_SIZE) / 96.0f;
+        float u2 = ((tileX + 1) * TILE_SIZE) / 96.0f;
+        float v2 = ((tileY + 1) * TILE_SIZE) / 96.0f;
+        
+        push(x1, y1, u1, v1);
+        push(x2, y2, u2, v1);
+        push(x3, y3, u2, v2);
+
+        push(x3, y3, u2, v2);
+        push(x4, y4, u1, v2);
+        push(x1, y1, u1, v1);
+      }
+    }
+
+    glBindVertexArray(m_Vao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
+    glBufferData(GL_ARRAY_BUFFER, m_VertexData.size() * sizeof(float), m_VertexData.data(), GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(0));
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
+
+    glBindVertexArray(0);
+  }
+
+  void RenderChunk()
+  {
+    glBindVertexArray(m_Vao);
+    glDrawArrays(GL_TRIANGLES, 0, m_VertexData.size()/4);
+    glBindVertexArray(0);
+  }
+};
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+  zoom -= (float)yoffset * dt * 5.0f;
+  if(zoom <= 0.0f)
+  {
+    zoom = 0.1f;
+  }
 }
 
 int main(void)
@@ -146,14 +290,82 @@ int main(void)
   glfwMakeContextCurrent(window);
 
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+  srand(time(0));
+
+  stbi_set_flip_vertically_on_load(true);
+  
+  Shader shader("../vert.glsl", "../frag.glsl");
+
+  unsigned int tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  int width, height, nrChannels;
+  unsigned char* data  = stbi_load("../test.png", &width, &height, &nrChannels, 0);
+  if(data)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  stbi_image_free(data);
+  
+  shader.Use();
+  shader.SetValue("tex", 0);
+
+  Chunk testChunk;
+  testChunk.m_XPos = 0.0f;
+  testChunk.m_YPos = 0.0f;
+  
+  testChunk.InitChunk();
+  testChunk.BakeVertices();
+  
+  Chunk testChunk1;
+  testChunk1.m_XPos = CHUNK_SIZE * TILE_SIZE;
+  testChunk1.m_YPos = CHUNK_SIZE * TILE_SIZE;
+
+  testChunk1.InitChunk();
+  testChunk1.BakeVertices();
+  
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetScrollCallback(window, scroll_callback);
 
   while(!glfwWindowShouldClose(window))
   {
-    glfwPollEvents();
+    float currentFrame = (float)glfwGetTime();
+    dt = currentFrame -  lastFrame;
+    lastFrame = currentFrame;
 
-    glClearColor(0.0, 0.0, 1.0, 1.0);
+    glfwPollEvents();
+    
+    ProcessInput();
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-  
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    
+    float aspect = (float)Width/(float)Height;
+
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(-camPos.x, -camPos.y, 0.0f));
+    glm::mat4 projection = glm::ortho(0.0f, (float)16*TILE_SIZE * aspect * zoom, 0.0f, (float)16*TILE_SIZE * zoom);
+
+
+    shader.Use();
+    shader.SetValue("model", model);
+    shader.SetValue("view", view);
+    shader.SetValue("projection", projection);
+
+    testChunk.RenderChunk();
+    testChunk1.RenderChunk();
+
     glfwSwapBuffers(window);
   }
 
