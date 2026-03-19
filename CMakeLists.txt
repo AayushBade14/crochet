@@ -30,6 +30,17 @@ target_include_directories(
   ./Vendor/glad/include
 )
 
+add_library(
+  stb_image
+  STATIC
+  ./Vendor/stb_image/stb_image.cpp
+)
+target_include_directories(
+  stb_image
+  PUBLIC
+  ./Vendor/stb_image
+)
+
 add_executable(
   crochet2D
   main.cpp
@@ -41,4 +52,5 @@ target_link_libraries(
   glm::glm
   OpenGL::GL
   glfw
+  stb_image
 )
