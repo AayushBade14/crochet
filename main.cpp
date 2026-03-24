@@ -15,12 +15,11 @@
 
 #include "./Vendor/stb_image/stb_image.h"
 
+#include "./Chunk.h"
+
 int Width = 1920;
 int Height = 1013;
 std::string Title = "crochet-editor";
-
-const int TILE_SIZE = 32;
-const int CHUNK_SIZE = 32;
 
 glm::vec2 camPos = glm::vec2(1.0f);
 
@@ -30,6 +29,15 @@ float lastFrame = 0.0f;
 float zoom = 1.0f;
 
 GLFWwindow* window = nullptr;
+
+glm::mat4 projection = glm::mat4(1.0f);
+glm::mat4 view = glm::mat4(1.0f);
+
+double xMouseScreen = 0.0f;
+double yMouseScreen = 0.0f;
+
+float xMouseWorld = 0.0f;
+float yMouseWorld = 0.0f;
 
 struct Shader
 {
@@ -155,109 +163,6 @@ void ProcessInput()
 
 }
 
-struct Tile
-{
-  uint32_t m_ID;
-};
-
-
-struct Chunk
-{
-  float m_XPos;
-  float m_YPos;
-
-  Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
-  
-  std::vector<float> m_VertexData;
-  
-  unsigned int m_Vbo;
-  unsigned int m_Vao;
-  
-  void InitChunk()
-  {
-    glGenVertexArrays(1, &m_Vao);
-    glGenBuffers(1, &m_Vbo);
-    
-    for(int i = 0; i < CHUNK_SIZE; i++)
-    {
-      for(int j = 0; j < CHUNK_SIZE; j++)
-      {
-        m_Tiles[j][i].m_ID = rand() % 10;
-      }
-    }
-  }
-
-  void push(float x, float y, float u, float v)
-  {
-    m_VertexData.push_back(x);
-    m_VertexData.push_back(y);
-    m_VertexData.push_back(u);
-    m_VertexData.push_back(v);
-  }
-  
-  void BakeVertices()
-  {
-    m_VertexData.clear();
-    for(int i = 0; i < CHUNK_SIZE; i++)
-    {
-      for(int j = 0; j < CHUNK_SIZE; j++)
-      {
-        Tile tile = m_Tiles[j][i];
-        
-        float TileStartX = m_XPos + j * TILE_SIZE;
-        float TileStartY = m_YPos + i * TILE_SIZE;
-
-        float x1 = TileStartX;
-        float y1 = TileStartY;
-
-        float x2 = TileStartX + TILE_SIZE;
-        float y2 = TileStartY;
-
-        float x3 = x2;
-        float y3 = TileStartY + TILE_SIZE;
-
-        float x4 = x1;
-        float y4 = y3;
-        
-        int tileX = tile.m_ID % 3;
-        int tileY = tile.m_ID / 3;
-
-        float u1 = (tileX * TILE_SIZE) / 96.0f;
-        float v1 = (tileY * TILE_SIZE) / 96.0f;
-        float u2 = ((tileX + 1) * TILE_SIZE) / 96.0f;
-        float v2 = ((tileY + 1) * TILE_SIZE) / 96.0f;
-        
-        push(x1, y1, u1, v1);
-        push(x2, y2, u2, v1);
-        push(x3, y3, u2, v2);
-
-        push(x3, y3, u2, v2);
-        push(x4, y4, u1, v2);
-        push(x1, y1, u1, v1);
-      }
-    }
-
-    glBindVertexArray(m_Vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_VertexData.size() * sizeof(float), m_VertexData.data(), GL_DYNAMIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(0));
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
-
-    glBindVertexArray(0);
-  }
-
-  void RenderChunk()
-  {
-    glBindVertexArray(m_Vao);
-    glDrawArrays(GL_TRIANGLES, 0, m_VertexData.size()/4);
-    glBindVertexArray(0);
-  }
-};
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
@@ -270,6 +175,23 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
   {
     zoom = 0.1f;
   }
+}
+
+
+void ScreenToWorld()
+{
+  float xNDC = (2.0f * xMouseScreen)/(float)Width - 1.0f;
+  float yNDC = 1.0f - (2.0f * yMouseScreen)/(float)Height;
+
+  glm::vec4 ray_clip = glm::vec4(xNDC, yNDC, 0.0f, 1.0f);
+
+  glm::vec4 ray_eye = glm::inverse(projection) * ray_clip; 
+  ray_eye /= ray_eye.w;
+
+  glm::vec3 ray_world = glm::inverse(view) * ray_eye;
+
+  xMouseWorld = ray_world.x;
+  yMouseWorld = ray_world.y;
 }
 
 int main(void)
@@ -324,13 +246,6 @@ int main(void)
   testChunk.InitChunk();
   testChunk.BakeVertices();
   
-  Chunk testChunk1;
-  testChunk1.m_XPos = CHUNK_SIZE * TILE_SIZE;
-  testChunk1.m_YPos = CHUNK_SIZE * TILE_SIZE;
-
-  testChunk1.InitChunk();
-  testChunk1.BakeVertices();
-  
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetScrollCallback(window, scroll_callback);
 
@@ -339,7 +254,10 @@ int main(void)
     float currentFrame = (float)glfwGetTime();
     dt = currentFrame -  lastFrame;
     lastFrame = currentFrame;
-
+    
+    glfwGetCursorPos(window, &xMouseScreen, &yMouseScreen);
+    ScreenToWorld();
+    testChunk.Update(window, xMouseWorld, yMouseWorld);
     glfwPollEvents();
     
     ProcessInput();
@@ -353,9 +271,9 @@ int main(void)
     float aspect = (float)Width/(float)Height;
 
     glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(-camPos.x, -camPos.y, 0.0f));
-    glm::mat4 projection = glm::ortho(0.0f, (float)16*TILE_SIZE * aspect * zoom, 0.0f, (float)16*TILE_SIZE * zoom);
+    projection = glm::ortho(0.0f, (float)16*TILE_SIZE * aspect * zoom, 0.0f, (float)16*TILE_SIZE * zoom);
 
 
     shader.Use();
@@ -364,7 +282,6 @@ int main(void)
     shader.SetValue("projection", projection);
 
     testChunk.RenderChunk();
-    testChunk1.RenderChunk();
 
     glfwSwapBuffers(window);
   }

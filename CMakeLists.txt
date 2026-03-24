@@ -31,6 +31,18 @@ target_include_directories(
 )
 
 add_library(
+  chunk
+  STATIC
+  ./Chunk.cpp
+)
+target_include_directories(
+  chunk
+  PUBLIC
+  ./
+  ./Vendor/glad/include
+)
+
+add_library(
   stb_image
   STATIC
   ./Vendor/stb_image/stb_image.cpp
@@ -53,4 +65,5 @@ target_link_libraries(
   OpenGL::GL
   glfw
   stb_image
+  chunk
 )
