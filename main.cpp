@@ -17,6 +17,10 @@
 
 #include "./World.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 int Width = 1920;
 int Height = 1013;
 std::string Title = "crochet-editor";
@@ -194,6 +198,90 @@ void ScreenToWorld()
   yMouseWorld = ray_world.y;
 }
 
+void InitUI()
+{
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGui::StyleColorsDark();
+
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 460 core");
+}
+
+void CleanUI()
+{
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+}
+
+void BeginUIFrame()
+{
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+}
+
+void EndUIFrame()
+{
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void DrawUI()
+{
+  BeginUIFrame();
+  
+  static float fps[100] = {};
+  static int offset = 0;
+
+  ImGui::Begin("PROFILING");
+
+  float currentFPS = ImGui::GetIO().Framerate;
+  fps[offset] = currentFPS;
+  offset = (offset + 1) % 100;
+
+
+  ImGui::Text("FPS: %.1f", currentFPS);
+  
+  ImGui::Text("FRAME-TIME: %.3f", 1000.0f/currentFPS);
+  ImGui::PlotLines(
+    "FPS",
+    fps,
+    100,
+    0,
+    NULL,
+    0.0f,
+    200.0f,
+    ImVec2(0, 80)
+  );
+  
+  float min = fps[0];
+  float max = fps[0];
+  float sum = 0;
+
+  for(int i = 0; i < 100; i++)
+  {
+    min = std::min(min, fps[i]);
+    max = std::max(max, fps[i]);
+    sum += fps[i];
+  }
+
+  float avg = sum/100;
+
+  ImGui::Text("AVG-FPS: %.1f", avg);
+  ImGui::Text("MIN-FPS: %.1f", min);
+  ImGui::Text("MAX-FPS: %.1f", max);
+  
+  ImGui::Separator();
+
+  ImGui::Text("TOTAL-CHUNKS: %d", WORLD_SIZE * WORLD_SIZE);
+  ImGui::Text("TOTAL-TILES: %d", WORLD_SIZE * WORLD_SIZE * CHUNK_SIZE);
+
+  ImGui::End();
+
+  EndUIFrame();
+}
 int main(void)
 { 
   
@@ -245,6 +333,8 @@ int main(void)
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetScrollCallback(window, scroll_callback);
+  
+  InitUI();
 
   while(!glfwWindowShouldClose(window))
   {
@@ -282,8 +372,12 @@ int main(void)
 
     m_World.Render(window, xMouseWorld, yMouseWorld, camPos.x, camPos.y, zoom, aspect);
     
+    DrawUI();
+
     glfwSwapBuffers(window);
   }
+  
+  CleanUI();
 
   glfwDestroyWindow(window);
   glfwTerminate();
