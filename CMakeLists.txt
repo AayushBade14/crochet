@@ -43,6 +43,23 @@ target_include_directories(
 )
 
 add_library(
+  world
+  STATIC
+  ./World.cpp
+)
+target_include_directories(
+  world
+  PUBLIC
+  ./
+  ./Vendor/glad/include
+)
+target_link_libraries(
+  world
+  PUBLIC
+  chunk
+)
+
+add_library(
   stb_image
   STATIC
   ./Vendor/stb_image/stb_image.cpp
@@ -66,4 +83,5 @@ target_link_libraries(
   glfw
   stb_image
   chunk
+  world
 )

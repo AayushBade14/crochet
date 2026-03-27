@@ -4,6 +4,7 @@
 #include <vector>
 
 const int CHUNK_SIZE = 32;
+const float ATLAS_SIZE = 96.0f;
 
 struct GLFWwindow;
 

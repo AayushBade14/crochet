@@ -52,10 +52,10 @@ void Chunk::BakeVertices()
       int tileX = tile.m_ID % 3;
       int tileY = tile.m_ID / 3;
 
-      float u1 = (tileX * TILE_SIZE) / 96.0f;
-      float v1 = (tileY * TILE_SIZE) / 96.0f;
-      float u2 = ((tileX + 1) * TILE_SIZE) / 96.0f;
-      float v2 = ((tileY + 1) * TILE_SIZE) / 96.0f;
+      float u1 = (tileX * TILE_SIZE) / ATLAS_SIZE;
+      float v1 = (tileY * TILE_SIZE) / ATLAS_SIZE;
+      float u2 = ((tileX + 1) * TILE_SIZE) / ATLAS_SIZE;
+      float v2 = ((tileY + 1) * TILE_SIZE) / ATLAS_SIZE;
       
       push(x1, y1, u1, v1);
       push(x2, y2, u2, v1);
@@ -87,10 +87,10 @@ void Chunk::ReBakeVertices(int i, int j)
   int tileX = tile.m_ID % 3;
   int tileY = tile.m_ID / 3;
 
-  float u1 = (tileX * TILE_SIZE) / 96.0f;
-  float v1 = (tileY * TILE_SIZE) / 96.0f;
-  float u2 = ((tileX + 1) * TILE_SIZE) / 96.0f;
-  float v2 = ((tileY + 1) * TILE_SIZE) / 96.0f;
+  float u1 = (tileX * TILE_SIZE) / ATLAS_SIZE;
+  float v1 = (tileY * TILE_SIZE) / ATLAS_SIZE;
+  float u2 = ((tileX + 1) * TILE_SIZE) / ATLAS_SIZE;
+  float v2 = ((tileY + 1) * TILE_SIZE) / ATLAS_SIZE;
   
   float linearMappingIndex = ((i * CHUNK_SIZE) + j) * 24;
  
@@ -166,27 +166,24 @@ bool Chunk::Collide(int i, int j, float xMouseWorld, float yMouseWorld)
 
 void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
 {
-  for(int i = 0; i < CHUNK_SIZE; i++)
+  int j = (xworld - m_XPos) / TILE_SIZE;
+  int i = (yworld - m_YPos) / TILE_SIZE;
+  
+  if(i >= 0 && j >= 0 && i < CHUNK_SIZE && j < CHUNK_SIZE)
   {
-    for(int j = 0; j < CHUNK_SIZE; j++)
+    bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT); 
+    static bool mouseHeld = false;
+
+    if(mouseState == GLFW_PRESS && !mouseHeld)
     {
-      if(Collide(i,j,xworld, yworld))
-      {
-        bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT); 
-        static bool mouseHeld = false;
-
-        if(mouseState == GLFW_PRESS && !mouseHeld)
-        {
-          m_Tiles[j][i].m_ID = (m_Tiles[j][i].m_ID + 1) % 10;
-          ReBakeVertices(i,j);
-          mouseHeld = true;
-        }
-
-        if(mouseState == GLFW_RELEASE)
-        {
-          mouseHeld = false;
-        }
-      }
+      m_Tiles[j][i].m_ID = (m_Tiles[j][i].m_ID + 1) % 10;
+      ReBakeVertices(i, j);
+      mouseHeld = true;
+    }
+    
+    if(mouseState == GLFW_RELEASE)
+    {
+      mouseHeld = false;
     }
   }
 }

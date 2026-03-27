@@ -15,7 +15,7 @@
 
 #include "./Vendor/stb_image/stb_image.h"
 
-#include "./Chunk.h"
+#include "./World.h"
 
 int Width = 1920;
 int Height = 1013;
@@ -239,13 +239,10 @@ int main(void)
   shader.Use();
   shader.SetValue("tex", 0);
 
-  Chunk testChunk;
-  testChunk.m_XPos = 0.0f;
-  testChunk.m_YPos = 0.0f;
-  
-  testChunk.InitChunk();
-  testChunk.BakeVertices();
-  
+  World m_World;
+
+  m_World.Init();
+
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetScrollCallback(window, scroll_callback);
 
@@ -257,11 +254,11 @@ int main(void)
     
     //std::cout << "FrameRate: " << 1.0f/dt << std::endl;
 
-    glfwGetCursorPos(window, &xMouseScreen, &yMouseScreen);
-    ScreenToWorld();
-    testChunk.Update(window, xMouseWorld, yMouseWorld);
     glfwPollEvents();
     
+    glfwGetCursorPos(window, &xMouseScreen, &yMouseScreen);
+    ScreenToWorld();
+ 
     ProcessInput();
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -283,8 +280,8 @@ int main(void)
     shader.SetValue("view", view);
     shader.SetValue("projection", projection);
 
-    testChunk.RenderChunk();
-
+    m_World.Render(window, xMouseWorld, yMouseWorld, camPos.x, camPos.y, zoom, aspect);
+    
     glfwSwapBuffers(window);
   }
 
