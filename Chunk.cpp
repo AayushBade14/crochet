@@ -80,6 +80,72 @@ void Chunk::BakeVertices()
   glBindVertexArray(0);
 }
 
+void Chunk::ReBakeVertices(int i, int j)
+{
+  Tile tile = m_Tiles[j][i];
+  
+  int tileX = tile.m_ID % 3;
+  int tileY = tile.m_ID / 3;
+
+  float u1 = (tileX * TILE_SIZE) / 96.0f;
+  float v1 = (tileY * TILE_SIZE) / 96.0f;
+  float u2 = ((tileX + 1) * TILE_SIZE) / 96.0f;
+  float v2 = ((tileY + 1) * TILE_SIZE) / 96.0f;
+  
+  float linearMappingIndex = ((i * CHUNK_SIZE) + j) * 24;
+ 
+
+  float v1Index1 = linearMappingIndex + 2;
+  float v1Index2 = v1Index1 + 1;
+
+  float v2Index1 = v1Index1 + 4;
+  float v2Index2 = v1Index2 + 4;
+
+  float v3Index1 = v2Index1 + 4;
+  float v3Index2 = v2Index2 + 4;
+
+  float v4Index1 = v3Index1 + 4;
+  float v4Index2 = v3Index2 + 4;
+
+  float v5Index1 = v4Index1 + 4;
+  float v5Index2 = v4Index2 + 4;
+
+  float v6Index1 = v5Index1 + 4;
+  float v6Index2 = v5Index2 + 4;
+
+  m_VertexData[v1Index1] = u1;
+  m_VertexData[v1Index2] = v1;
+  
+  m_VertexData[v2Index1] = u2;
+  m_VertexData[v2Index2] = v1;
+  
+  m_VertexData[v3Index1] = u2;
+  m_VertexData[v3Index2] = v2;
+  
+  m_VertexData[v4Index1] = u2;
+  m_VertexData[v4Index2] = v2;
+  
+  m_VertexData[v5Index1] = u1;
+  m_VertexData[v5Index2] = v2;
+  
+  m_VertexData[v6Index1] = u1;
+  m_VertexData[v6Index2] = v1;
+  
+  float v1data[] = {u1, v1};
+  float v2data[] = {u2, v1};
+  float v3data[] = {u2, v2};
+  float v5data[] = {u1, v2};
+
+  glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
+  glBufferSubData(GL_ARRAY_BUFFER, v1Index1*sizeof(float), 2.0f*sizeof(float), v1data);
+  glBufferSubData(GL_ARRAY_BUFFER, v2Index1*sizeof(float), 2.0f*sizeof(float), v2data);
+  glBufferSubData(GL_ARRAY_BUFFER, v3Index1*sizeof(float), 2.0f*sizeof(float), v3data);
+  glBufferSubData(GL_ARRAY_BUFFER, v4Index1*sizeof(float), 2.0f*sizeof(float), v3data);
+  glBufferSubData(GL_ARRAY_BUFFER, v5Index1*sizeof(float), 2.0f*sizeof(float), v5data);
+  glBufferSubData(GL_ARRAY_BUFFER, v6Index1*sizeof(float), 2.0f*sizeof(float), v1data);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Chunk::RenderChunk()
 {
   glBindVertexArray(m_Vao);
@@ -106,10 +172,19 @@ void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
     {
       if(Collide(i,j,xworld, yworld))
       {
-        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS)
+        bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT); 
+        static bool mouseHeld = false;
+
+        if(mouseState == GLFW_PRESS && !mouseHeld)
         {
           m_Tiles[j][i].m_ID = (m_Tiles[j][i].m_ID + 1) % 10;
-          BakeVertices();
+          ReBakeVertices(i,j);
+          mouseHeld = true;
+        }
+
+        if(mouseState == GLFW_RELEASE)
+        {
+          mouseHeld = false;
         }
       }
     }

@@ -24,6 +24,8 @@ struct Chunk
   void push(float x, float y, float u, float v);
   
   void BakeVertices();
+  
+  void ReBakeVertices(int i, int j);
 
   void RenderChunk();
 

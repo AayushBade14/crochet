@@ -255,6 +255,8 @@ int main(void)
     dt = currentFrame -  lastFrame;
     lastFrame = currentFrame;
     
+    //std::cout << "FrameRate: " << 1.0f/dt << std::endl;
+
     glfwGetCursorPos(window, &xMouseScreen, &yMouseScreen);
     ScreenToWorld();
     testChunk.Update(window, xMouseWorld, yMouseWorld);
