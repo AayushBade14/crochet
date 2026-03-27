@@ -276,7 +276,7 @@ void DrawUI()
   ImGui::Separator();
 
   ImGui::Text("TOTAL-CHUNKS: %d", WORLD_SIZE * WORLD_SIZE);
-  ImGui::Text("TOTAL-TILES: %d", WORLD_SIZE * WORLD_SIZE * CHUNK_SIZE);
+  ImGui::Text("TOTAL-TILES: %d", WORLD_SIZE * WORLD_SIZE * CHUNK_SIZE * CHUNK_SIZE);
 
   ImGui::End();
 
