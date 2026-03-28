@@ -8,6 +8,12 @@ const float ATLAS_SIZE = 96.0f;
 
 struct GLFWwindow;
 
+struct ChunkCoords
+{
+  float x;
+  float y;
+};
+
 struct Chunk
 {
   float m_XPos;

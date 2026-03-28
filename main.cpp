@@ -198,6 +198,8 @@ void ScreenToWorld()
   yMouseWorld = ray_world.y;
 }
 
+unsigned int paintToolTex, chunkToolTex;
+
 void InitUI()
 {
   IMGUI_CHECKVERSION();
@@ -206,6 +208,41 @@ void InitUI()
 
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 460 core");
+
+  glGenTextures(1, &paintToolTex);
+  glGenTextures(1, &chunkToolTex);
+
+  int width, height, nrChannels;
+  GLenum flag = GL_RGB;
+  unsigned char* data = nullptr;
+
+  glBindTexture(GL_TEXTURE_2D, paintToolTex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  data = stbi_load("../ToolIcons/tile_paint_tool.png", &width, &height, &nrChannels, 0);
+  flag = nrChannels == 3? GL_RGB : (nrChannels == 4? GL_RGBA : GL_RED);
+  if(data)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, flag, width, height, 0, flag, GL_UNSIGNED_BYTE, data);
+  }
+  stbi_image_free(data);
+
+  glBindTexture(GL_TEXTURE_2D, chunkToolTex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  data = stbi_load("../ToolIcons/chunk_paint_tool.png", &width, &height, &nrChannels, 0);
+  flag = nrChannels == 3? GL_RGB : (nrChannels == 4? GL_RGBA : GL_RED);
+  if(data)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, flag, width, height, 0, flag, GL_UNSIGNED_BYTE, data);
+  }
+  stbi_image_free(data);
+  
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void CleanUI()
@@ -228,10 +265,32 @@ void EndUIFrame()
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void DrawUI()
+enum Tool { TOOL_PAINT, TOOL_CHUNK };
+Tool activeTool = TOOL_PAINT; // your current tool state
+
+void DrawToolbar()
 {
-  BeginUIFrame();
-  
+  ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+    ImVec4 activeColor  = ImVec4(0.2f, 0.8f, 0.2f, 1.0f); // green tint when selected
+    ImVec4 defaultColor = ImGui::GetStyleColorVec4(ImGuiCol_Button); // normal button color
+
+    // Paint tool
+    ImGui::PushStyleColor(ImGuiCol_Button, activeTool == TOOL_PAINT ? activeColor : defaultColor);
+    if(ImGui::ImageButton("paint_tool", (ImTextureID)(intptr_t)paintToolTex, ImVec2(32, 32)))
+        activeTool = TOOL_PAINT;
+    ImGui::PopStyleColor();
+
+    // Chunk tool
+    ImGui::PushStyleColor(ImGuiCol_Button, activeTool == TOOL_CHUNK ? activeColor : defaultColor);
+    if(ImGui::ImageButton("chunk_tool", (ImTextureID)(intptr_t)chunkToolTex, ImVec2(32, 32)))
+        activeTool = TOOL_CHUNK;
+    ImGui::PopStyleColor();
+
+  ImGui::End();
+}
+
+void DrawProfiler()
+{
   static float fps[100] = {};
   static int offset = 0;
 
@@ -278,10 +337,30 @@ void DrawUI()
   ImGui::Text("TOTAL-CHUNKS: %d", WORLD_SIZE * WORLD_SIZE);
   ImGui::Text("TOTAL-TILES: %d", WORLD_SIZE * WORLD_SIZE * CHUNK_SIZE * CHUNK_SIZE);
 
-  ImGui::End();
+  ImGui::End(); 
+}
+
+void DrawUI()
+{
+  BeginUIFrame();
+  
+  DrawProfiler(); 
+  DrawToolbar();
 
   EndUIFrame();
 }
+
+
+float gridVertices[] = {
+  -1.0f, -1.0f, 
+   1.0f, -1.0f,
+   1.0f,  1.0f,
+
+   1.0f,  1.0f,
+  -1.0f,  1.0f,
+  -1.0f, -1.0f
+};
+
 int main(void)
 { 
   
@@ -306,6 +385,18 @@ int main(void)
   
   Shader shader("../vert.glsl", "../frag.glsl");
 
+  Shader g_shader("../grid_vert.glsl", "../grid_frag.glsl");
+  unsigned int grid_vao;
+  unsigned int grid_vbo;
+  glGenVertexArrays(1, &grid_vao);
+  glGenBuffers(1, &grid_vbo);
+  glBindVertexArray(grid_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(gridVertices), gridVertices, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);
+  glBindVertexArray(0);
+
   unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
@@ -326,7 +417,7 @@ int main(void)
   
   shader.Use();
   shader.SetValue("tex", 0);
-
+  
   World m_World;
 
   m_World.Init();
@@ -336,6 +427,9 @@ int main(void)
   
   InitUI();
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
   while(!glfwWindowShouldClose(window))
   {
     float currentFrame = (float)glfwGetTime();
@@ -363,14 +457,68 @@ int main(void)
     view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(-camPos.x, -camPos.y, 0.0f));
     projection = glm::ortho(0.0f, (float)16*TILE_SIZE * aspect * zoom, 0.0f, (float)16*TILE_SIZE * zoom);
-
+    
+    glm::mat4 invProj = glm::mat4(1.0f);
+    invProj = glm::inverse(projection * view);
 
     shader.Use();
     shader.SetValue("model", model);
     shader.SetValue("view", view);
     shader.SetValue("projection", projection);
 
-    m_World.Render(window, xMouseWorld, yMouseWorld, camPos.x, camPos.y, zoom, aspect);
+    m_World.Render(window, xMouseWorld, yMouseWorld, camPos.x, camPos.y, zoom, aspect, !ImGui::GetIO().WantCaptureMouse);
+    
+    g_shader.Use();
+    g_shader.SetValue("invProj", invProj);
+    g_shader.SetValue("TILE_SIZE", (float)TILE_SIZE);
+    g_shader.SetValue("CHUNK_SIZE", (float)CHUNK_SIZE);
+    
+    g_shader.SetValue("tool", (int)(activeTool == Tool::TOOL_CHUNK));
+
+    if(activeTool == Tool::TOOL_CHUNK)
+    {
+        float chunkWorld = (float)(CHUNK_SIZE * TILE_SIZE);
+        // snap to chunk grid instead of centering on mouse
+        float snappedX = floor(xMouseWorld / chunkWorld) * chunkWorld;
+        float snappedY = floor(yMouseWorld / chunkWorld) * chunkWorld;
+
+        g_shader.SetValue("x_min", snappedX);
+        g_shader.SetValue("x_max", snappedX + chunkWorld);
+        g_shader.SetValue("y_min", snappedY);
+        g_shader.SetValue("y_max", snappedY + chunkWorld);
+        
+        bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        static bool wasPressed = false;
+        if(mouseState == GLFW_PRESS && !wasPressed && !ImGui::GetIO().WantCaptureMouse)
+        {
+          m_World.AddChunk(snappedX, snappedY);
+          wasPressed = true;
+        }
+
+        if(mouseState == GLFW_RELEASE)
+        {
+          wasPressed = false;
+        }
+
+        bool mouseStateR = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+        static bool  wasPressedR = false;
+
+        if(mouseStateR == GLFW_PRESS && !wasPressedR && !ImGui::GetIO().WantCaptureMouse)
+        {
+          m_World.EraseChunk(snappedX, snappedY);
+          wasPressedR = true;
+        }
+
+        if(mouseStateR == GLFW_RELEASE)
+        {
+          wasPressedR = false;
+        }
+        
+    }
+
+    glBindVertexArray(grid_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
     
     DrawUI();
 
