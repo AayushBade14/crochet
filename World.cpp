@@ -129,8 +129,8 @@ void World::Render(GLFWwindow* window, float mX, float mY, float cx, float cy, f
       if(it != m_Chunks.end()){
         Chunk& chunk = it->second;
 
-        if(uifree)
-          chunk.Update(window, mX, mY);
+        //if(uifree)
+          //chunk.Update(window, mX, mY);
         chunk.RenderChunk();
       }
     }

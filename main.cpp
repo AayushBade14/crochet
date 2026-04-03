@@ -43,6 +43,10 @@ double yMouseScreen = 0.0f;
 float xMouseWorld = 0.0f;
 float yMouseWorld = 0.0f;
 
+int brush_size = 1;
+unsigned int tex;
+int selectedTile = 1;
+
 struct Shader
 {
   unsigned int m_ID;
@@ -347,6 +351,55 @@ void DrawLayerMenu()
   ImGui::End();
 }
 
+void DrawBrushProps()
+{
+  ImGui::Begin("BRUSH-PROPERTIES");
+  
+  ImGui::SliderInt("BRUSH-SIZE", &brush_size, 1, 32);
+
+  ImGui::End();
+}
+
+void DrawTilePalette()
+{
+    ImGui::Begin("Tile Palette");
+    ImGui::BeginChild("TileScroll", ImVec2(0, 300), true);
+
+    int atlasRows = ATLAS_SIZE / TILE_SIZE;
+    int atlasCols = ATLAS_SIZE / TILE_SIZE;
+
+    for (int y = 0; y < atlasRows; y++)
+    {
+        for (int x = 0; x < atlasCols; x++)
+        {
+            int tileID = y * atlasCols + x;
+
+            float u0 = (x * TILE_SIZE) / (float)ATLAS_SIZE;
+            float v0 = (y * TILE_SIZE) / (float)ATLAS_SIZE;
+            float u1 = ((x + 1) * TILE_SIZE) / (float)ATLAS_SIZE;
+            float v1 = ((y + 1) * TILE_SIZE) / (float)ATLAS_SIZE;
+
+            ImGui::PushID(tileID + 1);  // +1 to avoid ID 0
+            if (ImGui::ImageButton(
+                "",
+                (ImTextureID)(intptr_t)tex,
+                ImVec2(32, 32),
+                ImVec2(u0, v1),
+                ImVec2(u1, v0)))
+            {
+                selectedTile = tileID;  // still store the real 0-based ID
+            }
+            ImGui::PopID();
+
+            if (x < atlasCols - 1)
+                ImGui::SameLine();
+        }
+    }
+
+    ImGui::EndChild();
+    ImGui::End();
+}
+
 void DrawUI()
 {
   BeginUIFrame();
@@ -354,6 +407,11 @@ void DrawUI()
   DrawProfiler(); 
   DrawToolbar();
   DrawLayerMenu();
+  
+  if(activeTool == Tool::TOOL_PAINT){
+    DrawBrushProps();
+    DrawTilePalette();
+  }
 
   EndUIFrame();
 }
@@ -392,7 +450,7 @@ int main(void)
   stbi_set_flip_vertically_on_load(true);
   
   Shader shader("../vert.glsl", "../frag.glsl");
-
+  Shader b_shader("../brush_vert.glsl", "../brush_frag.glsl");
   Shader g_shader("../grid_vert.glsl", "../grid_frag.glsl");
   unsigned int grid_vao;
   unsigned int grid_vbo;
@@ -405,7 +463,6 @@ int main(void)
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);
   glBindVertexArray(0);
 
-  unsigned int tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
 
@@ -523,7 +580,85 @@ int main(void)
         }
         
     }
+    else if(activeTool == Tool::TOOL_PAINT)
+    {
+      glm::mat4 brush_model = glm::mat4(1.0f);
+      brush_model = glm::translate(brush_model, glm::vec3(xMouseWorld, yMouseWorld, 0.0));
+      brush_model = glm::scale(brush_model, glm::vec3(brush_size * TILE_SIZE/ 2.0f));
+      
+      b_shader.Use();
+      b_shader.SetValue("model", brush_model);
+      b_shader.SetValue("view", view);
+      b_shader.SetValue("projection", projection);
 
+      glBindVertexArray(grid_vao);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      glBindVertexArray(0);
+      
+      bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+      if(mouseState == GLFW_PRESS)
+      {
+        if(!ImGui::GetIO().WantCaptureMouse)
+        {
+          float offset = brush_size * TILE_SIZE/2.0f;
+          
+          float snappedX = floor(xMouseWorld / TILE_SIZE) * TILE_SIZE + TILE_SIZE * 0.5f;
+          float snappedY = floor(yMouseWorld / TILE_SIZE) * TILE_SIZE + TILE_SIZE * 0.5f;
+          
+          float left = snappedX - offset;
+          float right = snappedX + offset;
+          float bottom = snappedY - offset;
+          float top = snappedY + offset;
+
+          int x1 = (int)floor(left / (CHUNK_SIZE * TILE_SIZE));
+          int x2 = (int)floor(right / (CHUNK_SIZE * TILE_SIZE));
+          int y1 = (int)floor(bottom / (CHUNK_SIZE * TILE_SIZE));
+          int y2 = (int)floor(top / (CHUNK_SIZE * TILE_SIZE));
+
+          for(int y = y1; y <= y2; y++)
+          {
+            for(int x = x1; x <= x2; x++)
+            {
+              int m_X = x * CHUNK_SIZE * TILE_SIZE;
+              int m_Y = y * CHUNK_SIZE * TILE_SIZE;
+
+              auto it = m_World.m_Chunks.find({m_X, m_Y});
+              if(it != m_World.m_Chunks.end())
+              {
+                Chunk& chunk = it->second;
+
+                float l = left - chunk.m_ChunkCoords.m_X;
+                float r = right - chunk.m_ChunkCoords.m_X;
+                float b = bottom - chunk.m_ChunkCoords.m_Y;
+                float t = top - chunk.m_ChunkCoords.m_Y;
+
+                float x_start = std::max(0.0f, l);
+                float x_end = std::min(r, (float)CHUNK_SIZE * TILE_SIZE);
+                float y_start = std::max(0.0f, b);
+                float y_end = std::min(t, (float)CHUNK_SIZE * TILE_SIZE);
+                
+                int x1_ = x_start/TILE_SIZE;
+                int x2_ = x_end/TILE_SIZE;
+
+                int y1_ = y_start/TILE_SIZE;
+                int y2_ = y_end/TILE_SIZE;
+
+                for(int i = y1_; i < y2_; i++)
+                {
+                  for(int j = x1_; j < x2_; j++)
+                  {
+                    chunk.m_Tiles[j][i].m_ID = selectedTile;
+                    chunk.ReBakeVertices(i, j);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    g_shader.Use();
     glBindVertexArray(grid_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
