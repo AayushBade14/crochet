@@ -1,6 +1,7 @@
 #include "./World.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <cmath>
 
 void World::Init()
 {
@@ -50,16 +51,32 @@ bool World::IsChunkVisible(Chunk& chunk, float cx, float cy, float z, float aspe
 
 void World::AddChunk(float x, float y)
 {
+  /*
   m_Chunks.emplace_back();
   Chunk& chnk = m_Chunks.back();
   chnk.m_XPos = x;
   chnk.m_YPos = y;
   chnk.InitChunk();
   chnk.BakeVertices();
+  */
+  
+  // add a chunk only if it wasn't present already
+  ChunkCoords cc{(int)x, (int)y};
+
+  auto it = m_Chunks.find(cc);
+  
+  if(it == m_Chunks.end()){
+
+    Chunk& chunk = m_Chunks[cc];
+    chunk.m_ChunkCoords = cc;
+    chunk.InitChunk();
+    chunk.BakeVertices();
+  }
 }
 
 void World::EraseChunk(float x, float y)
 {
+  /*
       auto it = std::find_if(m_Chunks.begin(), m_Chunks.end(), [x, y](const Chunk& c)
     {
         return c.m_XPos == x && c.m_YPos == y;
@@ -72,40 +89,54 @@ void World::EraseChunk(float x, float y)
         std::iter_swap(it, m_Chunks.end() - 1);
         m_Chunks.pop_back();
     }
+  */
+  
+  auto it = m_Chunks.find({(int)x,(int)y});
+  if(it != m_Chunks.end())
+  {
+    m_Chunks.erase(it);
+  }
 }
 
 void World::Render(GLFWwindow* window, float mX, float mY, float cx, float cy, float z, float aspect, bool uifree)
 {
-  /*
   float chunkSize = CHUNK_SIZE * TILE_SIZE;
   float cw = 16 * TILE_SIZE * z * aspect;
   float ch = 16 * TILE_SIZE * z;
 
-  int startX = (int)(cx / chunkSize);
-  int endX = (int)((cx + cw) / chunkSize);
+  int startX = (int)floor(cx / chunkSize);
+  int endX = (int)floor((cx + cw) / chunkSize);
 
-  int startY = (int)(cy / chunkSize);
-  int endY = (int)((cy + ch) / chunkSize);
+  int startY = (int)floor(cy / chunkSize);
+  int endY = (int)floor((cy + ch) / chunkSize);
 
+  /*
   startX = std::max(0, startX);
   startY = std::max(0, startY);
 
   endX = std::min(WORLD_SIZE - 1, endX);
   endY = std::min(WORLD_SIZE - 1, endY);
+*/
 
   for(int y = startY; y <= endY; y++)
   {
     for(int x = startX; x <= endX; x++)
     {
-      int index = y * WORLD_SIZE + x;
-      if(index < m_Chunks.size()){
+      float m_X = x * chunkSize;
+      float m_Y = y * chunkSize;
+      
+      auto it = m_Chunks.find({(int)m_X, (int)m_Y});
+      if(it != m_Chunks.end()){
+        Chunk& chunk = it->second;
+
         if(uifree)
-          m_Chunks[index].Update(window, mX, mY);
-        m_Chunks[index].RenderChunk();
+          chunk.Update(window, mX, mY);
+        chunk.RenderChunk();
       }
     }
   }
-  */
+
+  /*
   // TO-DO: Implement unordered_map based sol this is just a hack
   for(auto& chunk : m_Chunks)
   {
@@ -113,4 +144,5 @@ void World::Render(GLFWwindow* window, float mX, float mY, float cx, float cy, f
       chunk.Update(window, mX, mY);
     chunk.RenderChunk();
   }
+  */
 }

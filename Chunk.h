@@ -3,6 +3,9 @@
 #include "./Tile.h"
 #include <vector>
 
+const int BASE_LAYER_COUNT = 3;
+const int DECORATION_LAYER_COUNT = 2;
+
 const int CHUNK_SIZE = 32;
 const float ATLAS_SIZE = 96.0f;
 
@@ -10,17 +13,68 @@ struct GLFWwindow;
 
 struct ChunkCoords
 {
-  float x;
-  float y;
+  int m_X;
+  int m_Y;
+
+  ChunkCoords& operator=(const ChunkCoords& other)
+  {
+    if(this == &other) return *this;
+
+    m_X = other.m_X;
+    m_Y = other.m_Y;
+
+    return *this;
+  }
+
+  bool operator==(const ChunkCoords& other) const
+  {
+    return m_X == other.m_X && m_Y == other.m_Y;
+  }
 };
 
-struct Chunk
+namespace std
 {
-  float m_XPos;
-  float m_YPos;
+  template <>
+  struct hash<ChunkCoords>
+  {
+    size_t operator()(const ChunkCoords& cc) const
+    {
+      size_t h1 = std::hash<float>{}(cc.m_X);
+      size_t h2 = std::hash<float>{}(cc.m_Y);
+
+      return h1 ^ (h2 << 1);
+    }
+  };
+}
+
+struct TileLayer
+{
+  bool m_IsEditorVisible = true;
+  bool m_IsRuntimeVisible = true;
+  bool m_IsLocked = false;
+  Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
+};
+
+/*
+struct CollisionLayer
+{
+  bool m_IsVisible = true;
+  bool m_IsLocked = false;
+  uint8_t m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
+};
+*/
+
+struct Chunk
+{/*
+  ChunkCoords m_ChunkCoords;
+
+  TileLayer m_BaseLayers[BASE_LAYER_COUNT];
+  TileLayer m_DecorationLayers[DECORATION_LAYER_COUNT];
+  uint8_t m_CollisionLayers[CHUNK_SIZE][CHUNK_SIZE];
+*/
+  ChunkCoords m_ChunkCoords;
 
   Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
-  
   std::vector<float> m_VertexData;
   
   unsigned int m_Vbo;
@@ -39,5 +93,7 @@ struct Chunk
   bool Collide(int i, int j, float xworld, float yworld);
   
   void Update(GLFWwindow* window, float xworld, float yworld);
+
+  void CleanupChunk();
 };
 

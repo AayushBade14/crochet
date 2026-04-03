@@ -340,12 +340,20 @@ void DrawProfiler()
   ImGui::End(); 
 }
 
+void DrawLayerMenu()
+{
+  ImGui::Begin("LAYER-MENU");
+
+  ImGui::End();
+}
+
 void DrawUI()
 {
   BeginUIFrame();
   
   DrawProfiler(); 
   DrawToolbar();
+  DrawLayerMenu();
 
   EndUIFrame();
 }

@@ -34,8 +34,8 @@ void Chunk::BakeVertices()
     {
       Tile tile = m_Tiles[j][i];
       
-      float TileStartX = m_XPos + j * TILE_SIZE;
-      float TileStartY = m_YPos + i * TILE_SIZE;
+      float TileStartX = m_ChunkCoords.m_X + j * TILE_SIZE;
+      float TileStartY = m_ChunkCoords.m_Y + i * TILE_SIZE;
 
       float x1 = TileStartX;
       float y1 = TileStartY;
@@ -166,8 +166,8 @@ bool Chunk::Collide(int i, int j, float xMouseWorld, float yMouseWorld)
 
 void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
 {
-  int j = (xworld - m_XPos) / TILE_SIZE;
-  int i = (yworld - m_YPos) / TILE_SIZE;
+  int j = (xworld - m_ChunkCoords.m_X) / TILE_SIZE;
+  int i = (yworld - m_ChunkCoords.m_Y) / TILE_SIZE;
   
   if(i >= 0 && j >= 0 && i < CHUNK_SIZE && j < CHUNK_SIZE)
   {
@@ -188,3 +188,9 @@ void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
   }
 }
 
+void Chunk::CleanupChunk()
+{
+  m_VertexData.clear();
+  glDeleteVertexArrays(1, &m_Vao);
+  glDeleteBuffers(1, &m_Vbo);
+}
