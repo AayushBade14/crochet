@@ -7,7 +7,12 @@ const int BASE_LAYER_COUNT = 3;
 const int DECORATION_LAYER_COUNT = 2;
 
 const int CHUNK_SIZE = 32;
-const float ATLAS_SIZE = 96.0f;
+const float ATLAS_SIZE = 1024.0f;
+
+const int NUM_LAYERS = 5;
+
+//const int LAYER_OFFSET = 1024 * 6 * 4;
+const int VERTEX_COUNT_PER_LAYER = 1024 * 6;
 
 struct GLFWwindow;
 
@@ -49,9 +54,9 @@ namespace std
 
 struct TileLayer
 {
-  bool m_IsEditorVisible = true;
-  bool m_IsRuntimeVisible = true;
-  bool m_IsLocked = false;
+  //bool m_IsEditorVisible = true;
+  //bool m_IsRuntimeVisible = true;
+  //bool m_IsLocked = false;
   Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
 };
 
@@ -65,16 +70,17 @@ struct CollisionLayer
 */
 
 struct Chunk
-{/*
+{
   ChunkCoords m_ChunkCoords;
 
-  TileLayer m_BaseLayers[BASE_LAYER_COUNT];
-  TileLayer m_DecorationLayers[DECORATION_LAYER_COUNT];
-  uint8_t m_CollisionLayers[CHUNK_SIZE][CHUNK_SIZE];
-*/
-  ChunkCoords m_ChunkCoords;
+  //Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
+  // 0 - base_layer0
+  // 1 - base_layer1
+  // 2 - base_layer2
+  // 3 - decoration_layer0
+  // 4 - decoration_layer1
 
-  Tile m_Tiles[CHUNK_SIZE][CHUNK_SIZE];
+  TileLayer m_Layers[NUM_LAYERS]; 
   std::vector<float> m_VertexData;
   
   unsigned int m_Vbo;
@@ -86,13 +92,13 @@ struct Chunk
   
   void BakeVertices();
   
-  void ReBakeVertices(int i, int j);
+  void ReBakeVertices(int i, int j, int k);
 
-  void RenderChunk();
+  void RenderChunk(std::vector<uint8_t>& m_LayerVisibility);
 
   bool Collide(int i, int j, float xworld, float yworld);
   
-  void Update(GLFWwindow* window, float xworld, float yworld);
+  //void Update(GLFWwindow* window, float xworld, float yworld);
 
   void CleanupChunk();
 };

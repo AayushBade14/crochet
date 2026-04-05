@@ -9,7 +9,8 @@ const int WORLD_SIZE = 200;
 
 struct World
 {
-  //std::vector<Chunk> m_Chunks; 
+  //std::vector<Chunk> m_Chunks;
+  std::vector<uint8_t> m_LayerVisibility;
   std::unordered_map<ChunkCoords, Chunk> m_Chunks;
 
   void Init();

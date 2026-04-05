@@ -344,12 +344,6 @@ void DrawProfiler()
   ImGui::End(); 
 }
 
-void DrawLayerMenu()
-{
-  ImGui::Begin("LAYER-MENU");
-
-  ImGui::End();
-}
 
 void DrawBrushProps()
 {
@@ -400,6 +394,48 @@ void DrawTilePalette()
     ImGui::End();
 }
 
+World m_World;
+
+std::vector<std::string> layers = {
+    "BASE0",
+    "BASE1",
+    "BASE2",
+    "DECORATION0",
+    "DECORATION1"
+};
+
+int selectedLayer = -1;
+
+void DrawLayerMenu()
+{
+    ImGui::Begin("LAYERS");
+
+    for (int i = 0; i < layers.size(); i++)
+    {
+        ImGui::PushID(i);
+
+        // Checkbox first
+        bool visible = m_World.m_LayerVisibility[i];
+        if (ImGui::Checkbox("##visible", &visible))
+        {
+            m_World.m_LayerVisibility[i] = visible;
+        }
+
+        ImGui::SameLine();
+
+        // Selectable next
+        bool isSelected = (selectedLayer == i);
+        if (ImGui::Selectable(layers[i].c_str(), isSelected))
+        {
+            selectedLayer = i;
+        }
+
+        ImGui::PopID();
+    }
+
+    ImGui::End();
+}
+
 void DrawUI()
 {
   BeginUIFrame();
@@ -407,7 +443,7 @@ void DrawUI()
   DrawProfiler(); 
   DrawToolbar();
   DrawLayerMenu();
-  
+ 
   if(activeTool == Tool::TOOL_PAINT){
     DrawBrushProps();
     DrawTilePalette();
@@ -472,7 +508,7 @@ int main(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   int width, height, nrChannels;
-  unsigned char* data  = stbi_load("../test.png", &width, &height, &nrChannels, 0);
+  unsigned char* data  = stbi_load("../terrain_atlas.png", &width, &height, &nrChannels, 0);
   if(data)
   {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -483,8 +519,6 @@ int main(void)
   shader.Use();
   shader.SetValue("tex", 0);
   
-  World m_World;
-
   m_World.Init();
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -596,6 +630,8 @@ int main(void)
       glBindVertexArray(0);
       
       bool mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+      bool mouseStateR = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+
       if(mouseState == GLFW_PRESS)
       {
         if(!ImGui::GetIO().WantCaptureMouse)
@@ -647,8 +683,68 @@ int main(void)
                 {
                   for(int j = x1_; j < x2_; j++)
                   {
-                    chunk.m_Tiles[j][i].m_ID = selectedTile;
-                    chunk.ReBakeVertices(i, j);
+                    chunk.m_Layers[selectedLayer].m_Tiles[j][i].m_ID = selectedTile;
+                    chunk.ReBakeVertices(i, j, selectedLayer);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      else if(mouseStateR == GLFW_PRESS)
+      {
+        if(!ImGui::GetIO().WantCaptureMouse)
+        {
+          float offset = brush_size * TILE_SIZE/2.0f;
+          
+          float snappedX = floor(xMouseWorld / TILE_SIZE) * TILE_SIZE + TILE_SIZE * 0.5f;
+          float snappedY = floor(yMouseWorld / TILE_SIZE) * TILE_SIZE + TILE_SIZE * 0.5f;
+          
+          float left = snappedX - offset;
+          float right = snappedX + offset;
+          float bottom = snappedY - offset;
+          float top = snappedY + offset;
+
+          int x1 = (int)floor(left / (CHUNK_SIZE * TILE_SIZE));
+          int x2 = (int)floor(right / (CHUNK_SIZE * TILE_SIZE));
+          int y1 = (int)floor(bottom / (CHUNK_SIZE * TILE_SIZE));
+          int y2 = (int)floor(top / (CHUNK_SIZE * TILE_SIZE));
+
+          for(int y = y1; y <= y2; y++)
+          {
+            for(int x = x1; x <= x2; x++)
+            {
+              int m_X = x * CHUNK_SIZE * TILE_SIZE;
+              int m_Y = y * CHUNK_SIZE * TILE_SIZE;
+
+              auto it = m_World.m_Chunks.find({m_X, m_Y});
+              if(it != m_World.m_Chunks.end())
+              {
+                Chunk& chunk = it->second;
+
+                float l = left - chunk.m_ChunkCoords.m_X;
+                float r = right - chunk.m_ChunkCoords.m_X;
+                float b = bottom - chunk.m_ChunkCoords.m_Y;
+                float t = top - chunk.m_ChunkCoords.m_Y;
+
+                float x_start = std::max(0.0f, l);
+                float x_end = std::min(r, (float)CHUNK_SIZE * TILE_SIZE);
+                float y_start = std::max(0.0f, b);
+                float y_end = std::min(t, (float)CHUNK_SIZE * TILE_SIZE);
+                
+                int x1_ = x_start/TILE_SIZE;
+                int x2_ = x_end/TILE_SIZE;
+
+                int y1_ = y_start/TILE_SIZE;
+                int y2_ = y_end/TILE_SIZE;
+
+                for(int i = y1_; i < y2_; i++)
+                {
+                  for(int j = x1_; j < x2_; j++)
+                  {
+                    chunk.m_Layers[selectedLayer].m_Tiles[j][i].m_ID = -1;
+                    chunk.ReBakeVertices(i, j, selectedLayer);
                   }
                 }
               }

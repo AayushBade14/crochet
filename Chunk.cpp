@@ -7,12 +7,14 @@ void Chunk::InitChunk()
 {
   glGenVertexArrays(1, &m_Vao);
   glGenBuffers(1, &m_Vbo);
-    
-  for(int i = 0; i < CHUNK_SIZE; i++)
-  {
-    for(int j = 0; j < CHUNK_SIZE; j++)
+  
+  for(int k = 0; k < NUM_LAYERS; k++){
+    for(int i = 0; i < CHUNK_SIZE; i++)
     {
-      m_Tiles[j][i].m_ID = rand() % 10;
+      for(int j = 0; j < CHUNK_SIZE; j++)
+      {
+        m_Layers[k].m_Tiles[j][i].m_ID = -1;
+      }
     }
   }
 }
@@ -28,42 +30,49 @@ void Chunk::push(float x, float y, float u, float v)
 void Chunk::BakeVertices()
 {
   m_VertexData.clear();
-  for(int i = 0; i < CHUNK_SIZE; i++)
-  {
-    for(int j = 0; j < CHUNK_SIZE; j++)
+  for(int k = 0; k < NUM_LAYERS; k++){
+    for(int i = 0; i < CHUNK_SIZE; i++)
     {
-      Tile tile = m_Tiles[j][i];
-      
-      float TileStartX = m_ChunkCoords.m_X + j * TILE_SIZE;
-      float TileStartY = m_ChunkCoords.m_Y + i * TILE_SIZE;
+      for(int j = 0; j < CHUNK_SIZE; j++)
+      {
+        Tile tile = m_Layers[k].m_Tiles[j][i];
+        
+        float TileStartX = m_ChunkCoords.m_X + j * TILE_SIZE;
+        float TileStartY = m_ChunkCoords.m_Y + i * TILE_SIZE;
 
-      float x1 = TileStartX;
-      float y1 = TileStartY;
+        float x1 = TileStartX;
+        float y1 = TileStartY;
 
-      float x2 = TileStartX + TILE_SIZE;
-      float y2 = TileStartY;
+        float x2 = TileStartX + TILE_SIZE;
+        float y2 = TileStartY;
 
-      float x3 = x2;
-      float y3 = TileStartY + TILE_SIZE;
+        float x3 = x2;
+        float y3 = TileStartY + TILE_SIZE;
 
-      float x4 = x1;
-      float y4 = y3;
-      
-      int tileX = tile.m_ID % 3;
-      int tileY = tile.m_ID / 3;
+        float x4 = x1;
+        float y4 = y3;
+        
+        //int tileX = tile.m_ID % 3;
+        //int tileY = tile.m_ID / 3;
 
-      float u1 = (tileX * TILE_SIZE) / ATLAS_SIZE;
-      float v1 = (tileY * TILE_SIZE) / ATLAS_SIZE;
-      float u2 = ((tileX + 1) * TILE_SIZE) / ATLAS_SIZE;
-      float v2 = ((tileY + 1) * TILE_SIZE) / ATLAS_SIZE;
-      
-      push(x1, y1, u1, v1);
-      push(x2, y2, u2, v1);
-      push(x3, y3, u2, v2);
+        //float u1 = (tileX * TILE_SIZE) / ATLAS_SIZE;
+        //float v1 = (tileY * TILE_SIZE) / ATLAS_SIZE;
+        //float u2 = ((tileX + 1) * TILE_SIZE) / ATLAS_SIZE;
+        //float v2 = ((tileY + 1) * TILE_SIZE) / ATLAS_SIZE;
+        
+        float u1 = -1.0f;
+        float u2 = -1.0f;
+        float v1 = -1.0f;
+        float v2 = -1.0f;
 
-      push(x3, y3, u2, v2);
-      push(x4, y4, u1, v2);
-      push(x1, y1, u1, v1);
+        push(x1, y1, u1, v1);
+        push(x2, y2, u2, v1);
+        push(x3, y3, u2, v2);
+
+        push(x3, y3, u2, v2);
+        push(x4, y4, u1, v2);
+        push(x1, y1, u1, v1);
+      }
     }
   }
 
@@ -80,19 +89,19 @@ void Chunk::BakeVertices()
   glBindVertexArray(0);
 }
 
-void Chunk::ReBakeVertices(int i, int j)
+void Chunk::ReBakeVertices(int i, int j, int k)
 {
-  Tile tile = m_Tiles[j][i];
+  Tile tile = m_Layers[k].m_Tiles[j][i];
   
-  int tileX = tile.m_ID % 3;
-  int tileY = tile.m_ID / 3;
+  int tileX = tile.m_ID % 32;
+  int tileY = tile.m_ID / 32;
 
   float u1 = (tileX * TILE_SIZE) / ATLAS_SIZE;
   float v1 = (tileY * TILE_SIZE) / ATLAS_SIZE;
   float u2 = ((tileX + 1) * TILE_SIZE) / ATLAS_SIZE;
   float v2 = ((tileY + 1) * TILE_SIZE) / ATLAS_SIZE;
   
-  float linearMappingIndex = ((i * CHUNK_SIZE) + j) * 24;
+  float linearMappingIndex = ((i * CHUNK_SIZE) + j) * 24 + (k * CHUNK_SIZE * CHUNK_SIZE * 24);
  
 
   float v1Index1 = linearMappingIndex + 2;
@@ -146,10 +155,15 @@ void Chunk::ReBakeVertices(int i, int j)
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Chunk::RenderChunk()
+void Chunk::RenderChunk(std::vector<uint8_t>& m_LayerVisibility)
 {
   glBindVertexArray(m_Vao);
-  glDrawArrays(GL_TRIANGLES, 0, m_VertexData.size()/4);
+  for(int k = 0; k < NUM_LAYERS; k++){
+    if(!m_LayerVisibility[k])
+      continue;
+
+    glDrawArrays(GL_TRIANGLES, k * VERTEX_COUNT_PER_LAYER, VERTEX_COUNT_PER_LAYER);
+  }
   glBindVertexArray(0);
 }
 
@@ -164,6 +178,7 @@ bool Chunk::Collide(int i, int j, float xMouseWorld, float yMouseWorld)
   return ((xMouseWorld >= x1)&&(xMouseWorld <= x2)) && ((yMouseWorld >= y1)&&(yMouseWorld <= y2))? true : false;
 }
 
+/*
 void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
 {
   int j = (xworld - m_ChunkCoords.m_X) / TILE_SIZE;
@@ -187,7 +202,7 @@ void Chunk::Update(GLFWwindow* window, float xworld, float yworld)
     }
   }
 }
-
+*/
 void Chunk::CleanupChunk()
 {
   m_VertexData.clear();

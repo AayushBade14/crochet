@@ -24,6 +24,11 @@ void World::Init()
     }
   }
   */
+  m_LayerVisibility.resize(5);
+  for(unsigned int i = 0; i < m_LayerVisibility.size(); i++)
+  {
+  m_LayerVisibility[i] = true;
+  }
 }
 /*
 bool World::IsChunkVisible(Chunk& chunk, float cx, float cy, float z, float aspect)
@@ -131,7 +136,7 @@ void World::Render(GLFWwindow* window, float mX, float mY, float cx, float cy, f
 
         //if(uifree)
           //chunk.Update(window, mX, mY);
-        chunk.RenderChunk();
+        chunk.RenderChunk(m_LayerVisibility);
       }
     }
   }
